@@ -11,9 +11,10 @@ type Props = {
   onChange: (lines: EditorialLine[]) => void;
   required?: boolean;
   max?: number;
+  theme?: "light" | "dark";
 };
 
-export function EditorialRichEditor({ label, value, onChange, required, max = 150 }: Props) {
+export function EditorialRichEditor({ label, value, onChange, required, max = 150, theme = "light" }: Props) {
   const editorRef = useRef<HTMLDivElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [paneVisible, setPaneVisible] = useState(false);
@@ -248,8 +249,8 @@ export function EditorialRichEditor({ label, value, onChange, required, max = 15
         />
       </div>
 
-      <div className="admin-headline-preview" aria-live="polite">
-        <span className="admin-headline-preview__label">Live page render</span>
+      <div className={`admin-headline-preview ${theme === "dark" ? "admin-headline-preview--dark" : "admin-headline-preview--light"}`} aria-live="polite">
+        <span className="admin-headline-preview__label">Live page render {theme === "dark" ? "(dark surface)" : ""}</span>
         <div className="admin-headline-preview__content">
           <EditorialLines lines={value} />
         </div>

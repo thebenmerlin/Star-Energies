@@ -85,7 +85,7 @@ export function HomeContentEditor({ content, media }: { content: HomePageContent
       <div>
         <FormSection eyebrow="01 / HERO" title="The first impression" description="The headline is intentionally short so it retains its editorial scale on every screen.">
           <div className="admin-fields admin-fields--two"><Field label="Eyebrow" required><TextInput value={copy.heroMeta} onChange={(event) => trackedUpdate("heroMeta", event.target.value)} /></Field><Field label="Kicker" required><TextInput value={copy.heroKicker} onChange={(event) => trackedUpdate("heroKicker", event.target.value)} /></Field></div>
-          <EditorialRichEditor label="Headline" value={copy.heroHeading} onChange={(lines) => { update("heroHeading", lines); editor.markDirty(); }} required max={80} />
+          <EditorialRichEditor label="Headline" value={copy.heroHeading} onChange={(lines) => { update("heroHeading", lines); editor.markDirty(); }} required max={80} theme="dark" />
           <div className="admin-fields admin-fields--two"><Field label="Primary action label" required><TextInput value={copy.primaryLabel} onChange={(event) => trackedUpdate("primaryLabel", event.target.value)} /></Field><Field label="Secondary action label" required><TextInput value={copy.secondaryLabel} onChange={(event) => trackedUpdate("secondaryLabel", event.target.value)} /></Field></div>
           <MediaPicker media={media} selectedId={heroMediaId} onSelect={(asset) => { setHeroMediaId(asset.id); editor.markDirty(); }} />
         </FormSection>
@@ -115,7 +115,7 @@ export function HomeContentEditor({ content, media }: { content: HomePageContent
         </FormSection>
 
         <FormSection eyebrow="08 / EXPERIENCE" title="New venture, established experience" description="This distinction must remain factual: Star Energies is a new business backed by industry experience.">
-          <div className="admin-fields admin-fields--two"><EditorialRichEditor label="Heading" value={copy.experienceHeading} onChange={(lines) => { update("experienceHeading", lines); editor.markDirty(); }} required max={120} /><ContentArea label="Body copy" value={copy.experienceBody} onChange={(value) => trackedUpdate("experienceBody", value)} required max={300} /></div>
+          <div className="admin-fields admin-fields--two"><EditorialRichEditor label="Heading" value={copy.experienceHeading} onChange={(lines) => { update("experienceHeading", lines); editor.markDirty(); }} required max={120} theme="dark" /><ContentArea label="Body copy" value={copy.experienceBody} onChange={(value) => trackedUpdate("experienceBody", value)} required max={300} /></div>
         </FormSection>
 
         <FormSection eyebrow="09 / FINAL CALL TO ACTION" title="Enquiry moment" description="Keeps direct contact available as an alternative to the quote form.">
@@ -165,7 +165,7 @@ export function AboutContentEditor({ content }: { content: AboutPageContent }) {
     <PageHeader eyebrow="WEBSITE CONTENT / ABOUT" title="About" description="A new-generation business with a clear, factual distinction between the brand and the experience behind it." />
     <div className="admin-editor-layout"><div>
       <FormSection eyebrow="01 / OPENING" title="Company positioning">
-        <EditorialRichEditor label="Editorial heading" value={copy.opening} onChange={(lines) => { update("opening", lines); editor.markDirty(); }} required max={100} />
+        <EditorialRichEditor label="Editorial heading" value={copy.opening} onChange={(lines) => { update("opening", lines); editor.markDirty(); }} required max={100} theme="dark" />
         <div className="admin-fields admin-fields--two"><Field label="Experience prefix"><TextInput value={copy.prefix} onChange={(event) => trackedUpdate("prefix", event.target.value)} /></Field><Field label="Experience statement"><TextInput value={copy.experienceStatement} onChange={(event) => trackedUpdate("experienceStatement", event.target.value)} /></Field></div>
       </FormSection>
       <FormSection eyebrow="02 / DISTINCTION" title="A new business, built on experience" description="Avoid dates, milestones or claims that imply Star Energies itself is 25 years old."><ContentArea label="Lead statement" value={copy.lead} onChange={(value) => trackedUpdate("lead", value)} required max={220} /><ContentArea label="Supporting copy" value={copy.distinction} onChange={(value) => trackedUpdate("distinction", value)} required max={360} /></FormSection>
@@ -238,7 +238,7 @@ export function OperationsContentEditor({ content, media }: { content: Operation
     <PageHeader eyebrow="OPERATIONS" title="Operations content" description="Manage the factual language around stocking, sourcing coordination and geographic experience." />
     <div className="admin-editor-layout"><div>
       <FormSection eyebrow="01 / WANI STOCKING FACILITY" title="Physical presence" description="Use this section for the Wani facility, without adding unknown capacity or equipment details.">
-        <EditorialRichEditor label="Heading" value={copy.opening} onChange={(lines) => { update("opening", lines); editor.markDirty(); }} required max={110} />
+        <EditorialRichEditor label="Heading" value={copy.opening} onChange={(lines) => { update("opening", lines); editor.markDirty(); }} required max={110} theme="dark" />
         <ContentArea label="Body copy" value={copy.openingBody} onChange={(value) => trackedUpdate("openingBody", value)} required max={320} />
         <MediaPicker media={media} selectedId={imageId} onSelect={(asset) => { setImageId(asset.id); editor.markDirty(); }} />
       </FormSection>
@@ -249,7 +249,7 @@ export function OperationsContentEditor({ content, media }: { content: Operation
       </div></FormSection>
       <FormSection eyebrow="04 / TRANSPORT" title="Third-party coordination" description="This safety statement is intentionally direct."><ContentArea label="Lead statement" value={copy.transportLead} onChange={(value) => trackedUpdate("transportLead", value)} required max={220} /><ContentArea label="Supporting copy" value={copy.transportBody} onChange={(value) => trackedUpdate("transportBody", value)} required max={300} /></FormSection>
       <FormSection eyebrow="05 / FINAL CALL TO ACTION" title="Next conversation"><div className="admin-fields admin-fields--two">
-        <EditorialRichEditor label="Heading" value={copy.finalHeading} onChange={(lines) => { update("finalHeading", lines); editor.markDirty(); }} required max={100} />
+        <EditorialRichEditor label="Heading" value={copy.finalHeading} onChange={(lines) => { update("finalHeading", lines); editor.markDirty(); }} required max={100} theme="dark" />
         <Field label="Action label"><TextInput value={copy.finalCta} onChange={(event) => trackedUpdate("finalCta", event.target.value)} /></Field>
       </div></FormSection>
     </div><aside className="admin-editor-aside"><p>IMPORTANT</p><b>Star Energies does not operate its own transport fleet.</b><span>Transportation may be coordinated through third-party transport providers where required.</span></aside></div>
