@@ -7,13 +7,10 @@ export function EditorialLines({ lines }: { lines: readonly EditorialLine[] }) {
     <>
       {lines.map((line, index) => {
         let textNode: React.ReactNode = line.text;
-        if (line.accent) {
-          textNode = <span className="editorial-accent">{textNode}</span>;
-        }
         if (line.bold) {
           textNode = <strong>{textNode}</strong>;
         }
-        if (line.emphasis) {
+        if (line.emphasis || line.accent) {
           textNode = <em>{textNode}</em>;
         }
         return (
@@ -120,9 +117,8 @@ export function editorialLinesToHtml(lines: readonly EditorialLine[]): string {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     let seg = escapeHtml(line.text);
-    if (line.accent) seg = `<span class="editorial-accent">${seg}</span>`;
     if (line.bold) seg = `<strong>${seg}</strong>`;
-    if (line.emphasis) seg = `<em>${seg}</em>`;
+    if (line.emphasis || line.accent) seg = `<em>${seg}</em>`;
     html += seg;
     if (line.breakAfter && i < lines.length - 1) {
       html += "<br>";
@@ -137,15 +133,13 @@ export function editorialLinesToHtml(lines: readonly EditorialLine[]): string {
 export function domToEditorialLines(root: Node): EditorialLine[] {
   const segments: EditorialLine[] = [];
 
-  function walk(node: Node, current: { emphasis?: boolean; bold?: boolean; accent?: boolean }) {
+  function walk(node: Node, isEmphasis: boolean) {
     if (node.nodeType === Node.TEXT_NODE) {
       const text = node.textContent ?? "";
       if (text) {
         segments.push({
           text,
-          ...(current.emphasis ? { emphasis: true } : {}),
-          ...(current.bold ? { bold: true } : {}),
-          ...(current.accent ? { accent: true } : {}),
+          ...(isEmphasis ? { emphasis: true } : {}),
         });
       }
       return;
@@ -162,19 +156,18 @@ export function domToEditorialLines(root: Node): EditorialLine[] {
         return;
       }
 
-      const isEmphasis = tag === "em" || tag === "i" || el.style.fontStyle === "italic" || el.classList.contains("editorial-emphasis");
-      const isBold = tag === "strong" || tag === "b" || el.style.fontWeight === "bold" || parseInt(el.style.fontWeight, 10) >= 600;
-      const isAccent = el.classList.contains("editorial-accent") || Boolean(el.style.color && (el.style.color.includes("amber") || el.style.color.includes("187") || el.style.color.includes("bb803c")));
+      const childEmphasis =
+        isEmphasis ||
+        tag === "em" ||
+        tag === "i" ||
+        el.style.fontStyle === "italic" ||
+        el.classList.contains("editorial-emphasis") ||
+        el.classList.contains("editorial-accent");
+
       const isBlock = tag === "div" || tag === "p";
 
-      const next = {
-        emphasis: current.emphasis || isEmphasis,
-        bold: current.bold || isBold,
-        accent: current.accent || isAccent,
-      };
-
       for (let i = 0; i < el.childNodes.length; i++) {
-        walk(el.childNodes[i], next);
+        walk(el.childNodes[i], childEmphasis);
       }
 
       if (isBlock && segments.length > 0 && !segments[segments.length - 1].breakAfter) {
@@ -183,7 +176,7 @@ export function domToEditorialLines(root: Node): EditorialLine[] {
     }
   }
 
-  walk(root, {});
+  walk(root, false);
 
   // Merge adjacent segments that share exact same formatting
   const merged: EditorialLine[] = [];
@@ -192,9 +185,7 @@ export function domToEditorialLines(root: Node): EditorialLine[] {
     if (
       merged.length > 0 &&
       !merged[merged.length - 1].breakAfter &&
-      Boolean(merged[merged.length - 1].emphasis) === Boolean(seg.emphasis) &&
-      Boolean(merged[merged.length - 1].bold) === Boolean(seg.bold) &&
-      Boolean(merged[merged.length - 1].accent) === Boolean(seg.accent)
+      Boolean(merged[merged.length - 1].emphasis) === Boolean(seg.emphasis)
     ) {
       merged[merged.length - 1].text += seg.text;
       if (seg.breakAfter) {
