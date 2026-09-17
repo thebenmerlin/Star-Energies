@@ -7,7 +7,7 @@ Star Energies is a Next.js public website and single-administrator CMS. The publ
 - Next.js 16 App Router + TypeScript
 - Neon Postgres + Drizzle ORM
 - Better Auth email/password sessions
-- S3-compatible media storage (Cloudflare R2-compatible)
+- Cloudinary media storage and optimized image delivery
 
 ## Local setup
 
@@ -17,7 +17,7 @@ Star Energies is a Next.js public website and single-administrator CMS. The publ
    npm install
    ```
 
-2. Copy `.env.example` to `.env.local` and enter your own Neon, Better Auth, and S3-compatible storage values. `DATABASE_URL`, `BETTER_AUTH_SECRET`, and all `S3_*` credential variables are server-only secrets: never prefix them with `NEXT_PUBLIC_`.
+2. Copy `.env.example` to `.env.local` and enter your own Neon, Better Auth, and Cloudinary values. `DATABASE_URL`, `BETTER_AUTH_SECRET`, and `CLOUDINARY_API_SECRET` are server-only secrets: never prefix them with `NEXT_PUBLIC_`.
 
 3. Create a Neon database with a pooled/serverless-compatible connection string, then apply the tracked migrations:
 
@@ -68,11 +68,11 @@ Better Auth uses database-backed, HTTP-only secure sessions. `/admin/**` is redi
 
 The first user is created only by `admin:create`. Additional administrators can be added later through a controlled server-side process; no client-side `isAdmin` flag grants access.
 
-## Media storage
+## Cloudinary media
 
-The media library accepts JPEG, PNG, WebP, and AVIF images up to 12 MB. The server verifies actual file bytes, uploads to S3-compatible storage under generated keys, then stores metadata in Neon. Existing assets cannot be deleted while they are referenced by page content or a catalogue record.
+The media library accepts JPEG, PNG, WebP, and AVIF images up to 12 MB. The server verifies actual file bytes, uploads to Cloudinary under a generated `star-energies/<category>/` public ID, then stores metadata—not image binaries—in Neon. Cloudinary serves the public delivery URL with automatic format/quality and a restrained 2400px width ceiling. Existing assets cannot be deleted while they are referenced by page content or a catalogue record.
 
-For Cloudflare R2, create a bucket, a scoped API token with object read/write access for that bucket, and a public custom domain (or CDN URL). Use the R2 S3 endpoint in `S3_ENDPOINT`, `auto` for `S3_REGION`, and that public domain for `S3_PUBLIC_BASE_URL`.
+Create a Cloudinary product environment and a restricted API key for this application. Enter its cloud name, API key, and API secret in the Cloudinary environment variables. The API secret remains on the server; uploads and deletes are signed server-side.
 
 ## Content and caching
 
@@ -91,7 +91,7 @@ Configure every required value from `.env.example` in the production host. Use a
 - [ ] Approved content seed verified
 - [ ] Initial administrator created; no bootstrap password retained
 - [ ] `BETTER_AUTH_SECRET` set to a unique high-entropy production value
-- [ ] S3-compatible bucket, scoped credentials, and public asset URL configured
+- [ ] Cloudinary product environment and restricted API credentials configured
 - [ ] Media upload, replace, and protected delete tested
 - [ ] Final phone, WhatsApp, email, address, GSTIN, logo, and photography entered
 - [ ] Admin login and protected routes tested

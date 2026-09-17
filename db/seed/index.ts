@@ -42,8 +42,8 @@ const now = () => new Date();
 function mediaInsert(asset: MediaAsset) {
   return {
     id: asset.id,
-    storageKey: asset.storagePath ?? null,
-    publicUrl: asset.url,
+    cloudinaryPublicId: asset.cloudinaryPublicId ?? null,
+    secureUrl: asset.secureUrl ?? asset.url,
     title: asset.title,
     altText: asset.altText,
     label: asset.label,
@@ -51,6 +51,7 @@ function mediaInsert(asset: MediaAsset) {
     category: asset.category,
     width: asset.width ?? null,
     height: asset.height ?? null,
+    format: asset.format ?? null,
     mimeType: asset.mimeType ?? null,
     placeholder: asset.placeholder,
     updatedAt: now(),

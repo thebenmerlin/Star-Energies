@@ -5,7 +5,7 @@ import { z } from "zod";
 import { getDatabase } from "@/db";
 import { mediaAssets } from "@/db/schema";
 import { requireAdmin, AdminAuthorizationError } from "@/lib/auth";
-import { uploadImage, validateImageUpload } from "@/lib/storage";
+import { getCloudinaryDeliveryUrl, uploadImageToCloudinary, validateImageUpload } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
 
@@ -32,7 +32,7 @@ function refreshMedia() {
 }
 
 function serializeMedia(asset: typeof mediaAssets.$inferSelect) {
-  return { id: asset.id, url: asset.publicUrl, storagePath: asset.storageKey ?? undefined, title: asset.title, altText: asset.altText, label: asset.label, caption: asset.caption ?? undefined, category: asset.category, width: asset.width ?? undefined, height: asset.height ?? undefined, mimeType: asset.mimeType ?? undefined, placeholder: asset.placeholder, createdAt: asset.createdAt.toISOString() };
+  return { id: asset.id, url: getCloudinaryDeliveryUrl(asset.cloudinaryPublicId ?? undefined, asset.secureUrl), cloudinaryPublicId: asset.cloudinaryPublicId ?? undefined, secureUrl: asset.secureUrl, title: asset.title, altText: asset.altText, label: asset.label, caption: asset.caption ?? undefined, category: asset.category, width: asset.width ?? undefined, height: asset.height ?? undefined, format: asset.format ?? undefined, mimeType: asset.mimeType ?? undefined, placeholder: asset.placeholder, createdAt: asset.createdAt.toISOString() };
 }
 
 export async function POST(request: Request) {
@@ -42,22 +42,25 @@ export async function POST(request: Request) {
     const file = formData.get("file");
     if (!(file instanceof File)) throw new Error("Choose an image file to upload.");
 
-    const image = await validateImageUpload(file);
-    const upload = await uploadImage(image);
-    const title = (String(formData.get("title") ?? file.name.replace(/\.[^.]+$/, "")).trim() || "Untitled image").slice(0, 120);
     const category = mediaCategorySchema.parse(formData.get("category") ?? "industrial");
+    const image = await validateImageUpload(file);
+    const upload = await uploadImageToCloudinary(image, category);
+    const title = (String(formData.get("title") ?? file.name.replace(/\.[^.]+$/, "")).trim() || "Untitled image").slice(0, 120);
     const altText = (String(formData.get("altText") ?? "Uploaded image awaiting final descriptive alt text.").trim()).slice(0, 180);
     const label = (String(formData.get("label") ?? "UPLOADED MEDIA").trim() || "UPLOADED MEDIA").slice(0, 100);
 
     const [asset] = await getDatabase().insert(mediaAssets).values({
       id: upload.id,
-      storageKey: upload.storageKey,
-      publicUrl: upload.publicUrl,
+      cloudinaryPublicId: upload.cloudinaryPublicId,
+      secureUrl: upload.secureUrl,
       originalFilename: upload.originalFilename,
       title,
       altText,
       label,
       category,
+      width: upload.width,
+      height: upload.height,
+      format: upload.format,
       mimeType: upload.mimeType,
       sizeBytes: upload.sizeBytes,
       placeholder: false,

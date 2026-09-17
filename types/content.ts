@@ -32,7 +32,8 @@ export const mediaAssetSchema = z.object({
   id: z.string().min(2).max(100),
   // A logo can be intentionally unassigned while its final SVG is being prepared.
   url: z.string().max(500),
-  storagePath: z.string().min(1).max(300).optional(),
+  cloudinaryPublicId: z.string().min(1).max(300).optional(),
+  secureUrl: z.string().max(500).optional(),
   title: z.string().min(2).max(120),
   altText: z.string().min(8).max(180),
   label: z.string().min(2).max(100),
@@ -40,6 +41,7 @@ export const mediaAssetSchema = z.object({
   category: z.enum(["logo", "coal", "facility", "industrial", "operations", "team", "hero"]),
   width: z.number().int().positive().optional(),
   height: z.number().int().positive().optional(),
+  format: z.string().min(1).max(20).optional(),
   mimeType: z.string().min(3).max(100).optional(),
   placeholder: z.boolean(),
   createdAt: z.string().datetime().optional(),

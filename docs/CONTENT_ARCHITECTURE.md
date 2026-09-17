@@ -42,7 +42,7 @@ The getters are asynchronous server-side reads from Neon and return published/ac
 
 - `SiteSettings`: canonical brand, contact, address, CTA, navigation, logo reference and default SEO. Phone, WhatsApp and email must only be changed here.
 - `SeoMetadata`: title, description, optional Open Graph fields, canonical path preparation and `noIndex`.
-- `MediaAsset`: stable ID, object-storage key/URL, accessible text, caption/label, asset category and placeholder status. Metadata is stored in Neon while image binaries remain in S3-compatible storage.
+- `MediaAsset`: stable ID, Cloudinary public ID/secure URL, accessible text, caption/label, asset category and placeholder status. Metadata is stored in Neon while image binaries remain in Cloudinary.
 - `Product`, `Industry`, `Capability`: stable string ID/slug, public copy, active/featured state, `published` preparation and display order. No product carries public pricing or stock counts.
 - `CoverageRegion`: industry-experience geography only. It is not an office-location model.
 - `QualityParameter`: reportable parameter labels only; it must not be used to invent ranges, certifications or promises.

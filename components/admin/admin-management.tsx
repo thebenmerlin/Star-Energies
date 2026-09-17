@@ -65,6 +65,8 @@ export function MediaLibrary({ media }: { media: MediaAsset[] }) {
     setMessage(null);
     const formData = new FormData();
     formData.set("file", file);
+    const selectedCategory = categoryMap[category];
+    if (selectedCategory) formData.set("category", selectedCategory);
     const endpoint = replacingId ? `/api/admin/media/${replacingId}` : "/api/admin/media";
     const response = await fetch(endpoint, { method: replacingId ? "PUT" : "POST", body: formData });
     const data = await response.json() as { asset?: MediaAsset; message?: string };

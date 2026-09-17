@@ -6,7 +6,7 @@ import { z } from "zod";
 import { getDatabase } from "@/db";
 import { mediaAssets, mediaReferences } from "@/db/schema";
 import { requireAdmin, AdminAuthorizationError } from "@/lib/auth";
-import { deleteStoredObject, uploadImage, validateImageUpload } from "@/lib/storage";
+import { deleteCloudinaryImage, getCloudinaryDeliveryUrl, uploadImageToCloudinary, validateImageUpload } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
 
@@ -34,7 +34,7 @@ function refreshMedia() {
 }
 
 function serializeMedia(asset: typeof mediaAssets.$inferSelect) {
-  return { id: asset.id, url: asset.publicUrl, storagePath: asset.storageKey ?? undefined, title: asset.title, altText: asset.altText, label: asset.label, caption: asset.caption ?? undefined, category: asset.category, width: asset.width ?? undefined, height: asset.height ?? undefined, mimeType: asset.mimeType ?? undefined, placeholder: asset.placeholder, createdAt: asset.createdAt.toISOString() };
+  return { id: asset.id, url: getCloudinaryDeliveryUrl(asset.cloudinaryPublicId ?? undefined, asset.secureUrl), cloudinaryPublicId: asset.cloudinaryPublicId ?? undefined, secureUrl: asset.secureUrl, title: asset.title, altText: asset.altText, label: asset.label, caption: asset.caption ?? undefined, category: asset.category, width: asset.width ?? undefined, height: asset.height ?? undefined, format: asset.format ?? undefined, mimeType: asset.mimeType ?? undefined, placeholder: asset.placeholder, createdAt: asset.createdAt.toISOString() };
 }
 
 function routeError(error: unknown) {
@@ -69,20 +69,23 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     const formData = await request.formData() as unknown as FormDataReader;
     const file = formData.get("file");
     if (!(file instanceof File)) throw new Error("Choose an image file to replace this media item.");
-    const upload = await uploadImage(await validateImageUpload(file));
+    const upload = await uploadImageToCloudinary(await validateImageUpload(file), existing.category);
 
     const [asset] = await db.update(mediaAssets).set({
-      storageKey: upload.storageKey,
-      publicUrl: upload.publicUrl,
+      cloudinaryPublicId: upload.cloudinaryPublicId,
+      secureUrl: upload.secureUrl,
       originalFilename: upload.originalFilename,
+      width: upload.width,
+      height: upload.height,
+      format: upload.format,
       mimeType: upload.mimeType,
       sizeBytes: upload.sizeBytes,
       placeholder: false,
       updatedAt: new Date(),
     }).where(eq(mediaAssets.id, id)).returning();
 
-    if (existing.storageKey?.startsWith("star-energies/media/")) {
-      deleteStoredObject(existing.storageKey).catch((error: unknown) => console.error("Old media cleanup failed", error instanceof Error ? error.message : "Unknown error"));
+    if (existing.cloudinaryPublicId) {
+      deleteCloudinaryImage(existing.cloudinaryPublicId).catch((error: unknown) => console.error("Previous Cloudinary asset cleanup failed", error instanceof Error ? error.message : "Unknown error"));
     }
     refreshMedia();
     return NextResponse.json({ asset: serializeMedia(asset) });
@@ -104,10 +107,8 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       const usage = references.slice(0, 3).map((reference) => `${reference.scope} ${reference.recordId}`).join(", ");
       return NextResponse.json({ message: `This image is currently used by ${usage}. Replace it there before deleting.` }, { status: 409 });
     }
+    if (asset.cloudinaryPublicId) await deleteCloudinaryImage(asset.cloudinaryPublicId);
     await db.delete(mediaAssets).where(and(eq(mediaAssets.id, id), eq(mediaAssets.id, asset.id)));
-    if (asset.storageKey?.startsWith("star-energies/media/")) {
-      deleteStoredObject(asset.storageKey).catch((error: unknown) => console.error("Media storage cleanup failed", error instanceof Error ? error.message : "Unknown error"));
-    }
     refreshMedia();
     return NextResponse.json({ ok: true });
   } catch (error) {

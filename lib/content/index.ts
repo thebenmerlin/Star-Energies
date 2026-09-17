@@ -5,6 +5,7 @@ import { unstable_cache } from "next/cache";
 
 import { siteSettings as developmentSiteSettings } from "@/content/site";
 import { getDatabase } from "@/db";
+import { getCloudinaryDeliveryUrl } from "@/lib/cloudinary";
 import {
   aboutPageContent,
   capabilities as capabilityRecords,
@@ -86,8 +87,9 @@ function selected<T extends { id: string }>(items: readonly T[], ids: readonly s
 function toMediaAsset(record: typeof mediaAssetRecords.$inferSelect): MediaAsset {
   return mediaAssetSchema.parse({
     id: record.id,
-    url: record.publicUrl,
-    storagePath: record.storageKey ?? undefined,
+    url: getCloudinaryDeliveryUrl(record.cloudinaryPublicId ?? undefined, record.secureUrl),
+    cloudinaryPublicId: record.cloudinaryPublicId ?? undefined,
+    secureUrl: record.secureUrl,
     title: record.title,
     altText: record.altText,
     label: record.label,
@@ -95,6 +97,7 @@ function toMediaAsset(record: typeof mediaAssetRecords.$inferSelect): MediaAsset
     category: record.category,
     width: record.width ?? undefined,
     height: record.height ?? undefined,
+    format: record.format ?? undefined,
     mimeType: record.mimeType ?? undefined,
     placeholder: record.placeholder,
     createdAt: record.createdAt.toISOString(),

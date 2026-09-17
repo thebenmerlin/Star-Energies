@@ -148,8 +148,8 @@ export const mediaAssets = pgTable(
   "media_assets",
   {
     id: text("id").primaryKey(),
-    storageKey: text("storage_key"),
-    publicUrl: text("public_url").notNull(),
+    cloudinaryPublicId: text("cloudinary_public_id"),
+    secureUrl: text("secure_url").notNull(),
     originalFilename: text("original_filename"),
     title: text("title").notNull(),
     altText: text("alt_text").notNull(),
@@ -158,6 +158,7 @@ export const mediaAssets = pgTable(
     category: mediaCategory("category").notNull(),
     width: integer("width"),
     height: integer("height"),
+    format: text("format"),
     mimeType: text("mime_type"),
     sizeBytes: integer("size_bytes"),
     placeholder: boolean("placeholder").notNull().default(false),

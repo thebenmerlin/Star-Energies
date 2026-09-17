@@ -14,13 +14,13 @@
     "admin:create": "ADMIN_BOOTSTRAP_MODE=true tsx db/seed/create-admin.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1134.0",
     "@fontsource-variable/ibm-plex-sans": "^5.3.0",
     "@neondatabase/serverless": "^1.1.0",
     "@types/node": "22.10.2",
     "@types/react": "19.0.2",
     "@types/react-dom": "19.0.2",
     "better-auth": "^1.7.5",
+    "cloudinary": "^2.11.0",
     "drizzle-orm": "^0.45.2",
     "file-type": "^21.3.4",
     "next": "^16.3.5",
