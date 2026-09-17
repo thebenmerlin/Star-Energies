@@ -1,26 +1,22 @@
-import type { Metadata } from "next";
 import { Arrow } from "@/components/arrow";
+import { EditorialLines } from "@/components/content-text";
 import { QuoteForm } from "@/components/quote-form";
 import { RequirementPrompt, SectionLabel } from "@/components/page-primitives";
-import { siteConfig } from "@/lib/site";
+import { getContactPage, getSiteSettings } from "@/lib/content";
+import { createMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Contact | Star Energies",
-  description: "Discuss an industrial coal requirement with Star Energies in Wani, Maharashtra.",
-};
+const contactData = getContactPage();
+export const metadata = createMetadata(contactData.content.seo);
 
 export default function ContactPage() {
-  return (
-    <main>
-      <section className="contact-opening" aria-labelledby="contact-title">
-        <div className="shell-grid contact-opening__grid"><div><SectionLabel>Contact / 01</SectionLabel><h1 id="contact-title">A serious requirement<br /><em>deserves a direct line.</em></h1><p>Call, WhatsApp or email Star Energies. If a quote form is useful, use the structured brief below.</p></div><address className="contact-opening__channels"><a href={siteConfig.contact.phoneHref}><span>PHONE</span>{siteConfig.contact.phoneDisplay}<Arrow diagonal /></a><a href={siteConfig.contact.whatsappHref}><span>WHATSAPP</span>Start a conversation<Arrow diagonal /></a><a href={siteConfig.contact.emailHref}><span>EMAIL</span>{siteConfig.contact.email}<Arrow diagonal /></a><p>{siteConfig.location}</p></address></div>
-      </section>
+  const { content, requirementDimensions } = contactData;
+  const siteSettings = getSiteSettings();
 
-      <section className="contact-form-section section section--stone" id="quote" aria-labelledby="quote-title">
-        <div className="shell-grid contact-form-section__grid"><div className="contact-form-section__aside"><SectionLabel>Request a quote / 02</SectionLabel><h2 id="quote-title">Start with<br /><em>what you know.</em></h2><RequirementPrompt /><p>Technical fields are optional because not every buyer will have every detail to hand. We can discuss the missing information directly.</p></div><QuoteForm /></div>
-      </section>
+  return <main>
+    <section className="contact-opening" aria-labelledby="contact-title"><div className="shell-grid contact-opening__grid"><div><SectionLabel>{content.opening.label}</SectionLabel><h1 id="contact-title"><EditorialLines lines={content.opening.heading} /></h1><p>{content.opening.body}</p></div><address className="contact-opening__channels"><a href={siteSettings.contact.phoneHref}><span>{content.opening.channelLabels[0]}</span>{siteSettings.contact.phoneDisplay}<Arrow diagonal /></a><a href={siteSettings.contact.whatsappHref}><span>{content.opening.channelLabels[1]}</span>{content.opening.whatsappLabel}<Arrow diagonal /></a><a href={siteSettings.contact.emailHref}><span>{content.opening.channelLabels[2]}</span>{siteSettings.contact.email}<Arrow diagonal /></a><p>{siteSettings.address.display}</p></address></div></section>
 
-      <section className="contact-reassurance section section--ink"><div className="shell-grid contact-reassurance__grid"><span>NO NEED TO WAIT FOR A PERFECT BRIEF.</span><p>If you know the application, quantity and delivery destination, that is enough to start a useful conversation.</p><a className="button button--amber" href={siteConfig.contact.whatsappHref}>WhatsApp Star Energies <Arrow diagonal /></a></div></section>
-    </main>
-  );
+    <section className="contact-form-section section section--stone" id="quote" aria-labelledby="quote-title"><div className="shell-grid contact-form-section__grid"><div className="contact-form-section__aside"><SectionLabel>{content.formIntro.label}</SectionLabel><h2 id="quote-title"><EditorialLines lines={content.formIntro.heading} /></h2><RequirementPrompt label={content.formIntro.requirementPromptLabel} dimensions={requirementDimensions} /><p>{content.formIntro.helper}</p></div><QuoteForm content={content.formIntro.quoteForm} /></div></section>
+
+    <section className="contact-reassurance section section--ink"><div className="shell-grid contact-reassurance__grid"><span>{content.reassurance.eyebrow}</span><p>{content.reassurance.body}</p><a className="button button--amber" href={content.reassurance.cta.href}>{content.reassurance.cta.label} <Arrow diagonal /></a></div></section>
+  </main>;
 }

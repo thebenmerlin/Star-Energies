@@ -1,228 +1,57 @@
+import type { CSSProperties } from "react";
 import { Arrow } from "@/components/arrow";
-import {
-  industries,
-  qualityParameters,
-  requirementFields,
-  siteConfig,
-  sourcingOptions,
-} from "@/lib/site";
+import { EditorialLines, LineBreaks } from "@/components/content-text";
+import { ArrowLink, SectionLabel } from "@/components/page-primitives";
+import { getHomePage, getSiteSettings } from "@/lib/content";
+import { createMetadata } from "@/lib/seo";
+import type { CoverageRegion } from "@/types/content";
 
-function SectionLabel({ children, inverse = false }: { children: React.ReactNode; inverse?: boolean }) {
-  return <span className={`section-label ${inverse ? "section-label--inverse" : ""}`}><i />{children}</span>;
+const homeData = getHomePage();
+export const metadata = createMetadata(homeData.content.seo);
+
+function CapabilityDiagram({ labels }: { labels: readonly [string, string] }) {
+  return <div className="capability-diagram" aria-hidden="true"><div className="capability-diagram__orbit" /><div className="capability-diagram__ring capability-diagram__ring--one" /><div className="capability-diagram__ring capability-diagram__ring--two" /><span className="capability-diagram__label capability-diagram__label--one"><LineBreaks text={labels[0]} /></span><span className="capability-diagram__label capability-diagram__label--two"><LineBreaks text={labels[1]} /></span><span className="capability-diagram__dot capability-diagram__dot--one" /><span className="capability-diagram__dot capability-diagram__dot--two" /></div>;
 }
 
-function ArrowLink({ href, children, inverse = false }: { href: string; children: React.ReactNode; inverse?: boolean }) {
-  return <a className={`arrow-link ${inverse ? "arrow-link--inverse" : ""}`} href={href}><span>{children}</span><Arrow diagonal /></a>;
-}
+function RouteDiagram({ regions, note }: { regions: readonly CoverageRegion[]; note: string }) {
+  const labelFor = (id: string) => regions.find((region) => region.id === id)?.mapLabel ?? "";
 
-function CapabilityDiagram() {
-  return (
-    <div className="capability-diagram" aria-hidden="true">
-      <div className="capability-diagram__orbit" />
-      <div className="capability-diagram__ring capability-diagram__ring--one" />
-      <div className="capability-diagram__ring capability-diagram__ring--two" />
-      <span className="capability-diagram__label capability-diagram__label--one">INDUSTRIAL<br />REQUIREMENT</span>
-      <span className="capability-diagram__label capability-diagram__label--two">SOURCE<br />TO FIT</span>
-      <span className="capability-diagram__dot capability-diagram__dot--one" />
-      <span className="capability-diagram__dot capability-diagram__dot--two" />
-    </div>
-  );
-}
-
-function RouteDiagram() {
-  return (
-    <svg className="route-diagram" viewBox="0 0 620 530" role="img" aria-label="Operating experience connecting Wani with industrial regions across India">
-      <defs>
-        <pattern id="route-grid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M 16 0 L 0 0 0 16" fill="none" stroke="currentColor" strokeWidth="0.5" /></pattern>
-      </defs>
-      <path className="route-diagram__land" d="M310 43 355 64l8 46 43 31-9 43 33 37-17 45 22 51-26 55-7 60-34 21-35-43-23-49-35-25 3-49-38-51 6-62 31-35 19-50 36-17z" />
-      <path className="route-diagram__grid" d="M310 43 355 64l8 46 43 31-9 43 33 37-17 45 22 51-26 55-7 60-34 21-35-43-23-49-35-25 3-49-38-51 6-62 31-35 19-50 36-17z" />
-      <g className="route-diagram__line">
-        <path d="M285 228 C225 218 155 224 75 183" />
-        <path d="M285 228 C239 147 193 103 172 77" />
-        <path d="M285 228 C348 182 440 161 532 150" />
-        <path d="M285 228 C363 267 430 307 535 330" />
-        <path d="M285 228 C278 302 235 373 167 415" />
-      </g>
-      <g className="route-diagram__node">
-        <circle cx="285" cy="228" r="7" /><circle cx="75" cy="183" r="4" /><circle cx="172" cy="77" r="4" /><circle cx="532" cy="150" r="4" /><circle cx="535" cy="330" r="4" /><circle cx="167" cy="415" r="4" />
-      </g>
-      <g className="route-diagram__text">
-        <text x="297" y="222">WANI</text><text x="20" y="172">GUJARAT</text><text x="116" y="62">MAHARASHTRA</text><text x="465" y="140">VISAKHAPATNAM</text><text x="478" y="352">HYDERABAD</text><text x="100" y="440">KARNATAKA</text>
-      </g>
-      <text className="route-diagram__key" x="23" y="496">REGIONAL INDUSTRY EXPERIENCE</text>
-    </svg>
-  );
+  return <svg className="route-diagram" viewBox="0 0 620 530" role="img" aria-label="Operating experience connecting Wani with industrial regions across India">
+    <defs><pattern id="route-grid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M 16 0 L 0 0 0 16" fill="none" stroke="currentColor" strokeWidth="0.5" /></pattern></defs>
+    <path className="route-diagram__land" d="M310 43 355 64l8 46 43 31-9 43 33 37-17 45 22 51-26 55-7 60-34 21-35-43-23-49-35-25 3-49-38-51 6-62 31-35 19-50 36-17z" /><path className="route-diagram__grid" d="M310 43 355 64l8 46 43 31-9 43 33 37-17 45 22 51-26 55-7 60-34 21-35-43-23-49-35-25 3-49-38-51 6-62 31-35 19-50 36-17z" />
+    <g className="route-diagram__line"><path d="M285 228 C225 218 155 224 75 183" /><path d="M285 228 C239 147 193 103 172 77" /><path d="M285 228 C348 182 440 161 532 150" /><path d="M285 228 C363 267 430 307 535 330" /><path d="M285 228 C278 302 235 373 167 415" /></g>
+    <g className="route-diagram__node"><circle cx="285" cy="228" r="7" /><circle cx="75" cy="183" r="4" /><circle cx="172" cy="77" r="4" /><circle cx="532" cy="150" r="4" /><circle cx="535" cy="330" r="4" /><circle cx="167" cy="415" r="4" /></g>
+    <g className="route-diagram__text"><text x="297" y="222">WANI</text><text x="20" y="172">{labelFor("gujarat")}</text><text x="116" y="62">{labelFor("maharashtra")}</text><text x="465" y="140">{labelFor("andhra-visakhapatnam")}</text><text x="478" y="352">{labelFor("telangana-hyderabad")}</text><text x="100" y="440">{labelFor("karnataka")}</text></g>
+    <text className="route-diagram__key" x="23" y="496">{note}</text>
+  </svg>;
 }
 
 export default function HomePage() {
-  return (
-    <>
-      <main>
-        <section className="hero" aria-labelledby="hero-title">
-          <div className="hero__grid-lines" aria-hidden="true" />
-          <div className="hero__inner">
-            <div className="hero__meta fade-up"><span>WANI, MAHARASHTRA</span><span>INDUSTRIAL COAL SUPPLY</span></div>
-            <div className="hero__content">
-              <p className="hero__kicker fade-up fade-up--delay-1">Built around the brief, not a fixed catalogue.</p>
-              <h1 id="hero-title" className="hero__title fade-up fade-up--delay-2">Industrial Coal.<br /><em>Sourced to Requirement.</em></h1>
-              <div className="hero__actions fade-up fade-up--delay-3">
-                <a className="button button--amber" href="#enquire">Request a Quote <Arrow diagonal /></a>
-                <a className="hero__contact" href={siteConfig.contact.whatsappHref}><span>WhatsApp or call</span><Arrow diagonal /></a>
-              </div>
-            </div>
-            <div className="hero__scene fade-up fade-up--delay-3" role="img" aria-label="Temporary industrial coal stock placeholder; photography to be replaced">
-              <div className="hero__scene-grid" />
-              <div className="hero__scene-mass hero__scene-mass--one" />
-              <div className="hero__scene-mass hero__scene-mass--two" />
-              <div className="hero__scene-mass hero__scene-mass--three" />
-              <span className="scene-caption">DEVELOPMENT IMAGE PLATE<br />COAL / STOCKING YARD</span>
-              <span className="scene-scale">01 — 04</span>
-            </div>
-            <div className="hero__brief fade-up fade-up--delay-4" aria-label="Key coal requirement parameters">
-              <span>GRADE</span><span>SIZE</span><span>QUANTITY</span><span>DESTINATION</span>
-            </div>
-          </div>
-          <div className="hero__bottom"><span>SCROLL TO EXPLORE</span><i /><span>STAR ENERGIES / 01</span></div>
-        </section>
+  const { content, products, industries, coverageRegions, qualityParameters, requirementDimensions } = homeData;
+  const siteSettings = getSiteSettings();
+  const heroMediaStyle = { "--hero-media": `url("${content.hero.media.url}")` } as CSSProperties;
+  const sourcingMediaStyle = { "--plate-image": `url("${content.sourcing.media.url}")` } as CSSProperties;
+  const facilityMediaStyle = { "--plate-image": `url("${content.facility.media.url}")` } as CSSProperties;
 
-        <section className="capability section section--mineral" id="capabilities" aria-labelledby="capability-title">
-          <div className="shell-grid capability__grid">
-            <div className="capability__side">
-              <SectionLabel>Capability / 01</SectionLabel>
-              <p className="technical-copy">Sourcing is considered against material availability, the commercial picture and the route to your destination.</p>
-            </div>
-            <div className="capability__main">
-              <p className="section-intro">For requirements from</p>
-              <h2 id="capability-title"><span>≈100 tonnes</span><em>to several thousand.</em></h2>
-              <p className="capability__body">Whether the requirement is an initial industrial lot or a larger volume, we begin with the operational details that matter.</p>
-              <ArrowLink href="#requirement">How requirement-led sourcing works</ArrowLink>
-            </div>
-            <CapabilityDiagram />
-          </div>
-        </section>
+  return <main>
+    <section className="hero" aria-labelledby="hero-title"><div className="hero__grid-lines" aria-hidden="true" /><div className="hero__inner"><div className="hero__meta fade-up"><span>{content.hero.meta[0]}</span><span>{content.hero.meta[1]}</span></div><div className="hero__content"><p className="hero__kicker fade-up fade-up--delay-1">{content.hero.kicker}</p><h1 id="hero-title" className="hero__title fade-up fade-up--delay-2"><EditorialLines lines={content.hero.heading} /></h1><div className="hero__actions fade-up fade-up--delay-3"><a className="button button--amber" href={content.hero.primaryCTA.href}>{content.hero.primaryCTA.label} <Arrow diagonal /></a><a className="hero__contact" href={content.hero.secondaryCTA.href}><span>{content.hero.secondaryCTA.label}</span><Arrow diagonal /></a></div></div><div className={`hero__scene ${content.hero.media.placeholder ? "hero__scene--placeholder" : ""} fade-up fade-up--delay-3`} style={heroMediaStyle} role="img" aria-label={content.hero.media.altText} data-media-id={content.hero.media.id}><div className="hero__scene-media" /><div className="hero__scene-grid" /><div className="hero__scene-mass hero__scene-mass--one" /><div className="hero__scene-mass hero__scene-mass--two" /><div className="hero__scene-mass hero__scene-mass--three" /><span className="scene-caption"><LineBreaks text={content.hero.sceneCaption} /></span><span className="scene-scale">{content.hero.sceneScale}</span></div><div className="hero__brief fade-up fade-up--delay-4" aria-label="Key coal requirement parameters">{requirementDimensions.map((dimension) => <span key={dimension.id}>{dimension.label.toUpperCase()}</span>)}</div></div><div className="hero__bottom"><span>{content.hero.scrollLabel}</span><i /><span>{content.hero.progressLabel}</span></div></section>
 
-        <section className="requirement section section--graphite" id="requirement" aria-labelledby="requirement-title">
-          <div className="shell-grid">
-            <div className="requirement__intro">
-              <SectionLabel inverse>Requirement-led sourcing / 02</SectionLabel>
-              <h2 id="requirement-title">A clear brief is where the work starts.</h2>
-              <p>Tell us what your operation needs. Star Energies evaluates suitable sourcing routes around that requirement.</p>
-            </div>
-            <div className="requirement__sequence">
-              {requirementFields.map((field) => (
-                <article className="requirement-step" key={field.label}>
-                  <span className="requirement-step__number">{field.index}</span>
-                  <div><h3>{field.label}</h3><p>{field.detail}</p></div>
-                  <span className="requirement-step__cross" aria-hidden="true">+</span>
-                </article>
-              ))}
-              <div className="requirement__result"><span>YOUR REQUIREMENT</span><strong>Suitable sourcing<br />options evaluated</strong><Arrow diagonal /></div>
-            </div>
-          </div>
-        </section>
+    <section className="capability section section--mineral" id="capabilities" aria-labelledby="capability-title"><div className="shell-grid capability__grid"><div className="capability__side"><SectionLabel>{content.capabilityIntro.label}</SectionLabel><p className="technical-copy">{content.capabilityIntro.technicalCopy}</p></div><div className="capability__main"><p className="section-intro">{content.capabilityIntro.intro}</p><h2 id="capability-title"><EditorialLines lines={content.capabilityIntro.heading} /></h2><p className="capability__body">{content.capabilityIntro.body}</p><ArrowLink href={content.capabilityIntro.cta.href}>{content.capabilityIntro.cta.label}</ArrowLink></div><CapabilityDiagram labels={content.capabilityIntro.diagramLabels} /></div></section>
 
-        <section className="sourcing section section--white" id="coal" aria-labelledby="sourcing-title">
-          <div className="shell-grid sourcing__grid">
-            <div className="sourcing__intro">
-              <SectionLabel>Coal & sourcing / 03</SectionLabel>
-              <h2 id="sourcing-title">Material routes, considered with purpose.</h2>
-              <p>We do not put coal into a public shopping basket. Each enquiry is considered against the material and commercial context at that time, including available auction, trader and supplier routes.</p>
-            </div>
-            <div className="sourcing__list">
-              {sourcingOptions.map((option) => (
-                <article className="source-row" key={option.title}>
-                  <span>{option.number}</span><h3>{option.title}</h3><p>{option.text}</p><Arrow diagonal />
-                </article>
-              ))}
-            </div>
-            <figure className="sourcing__media image-plate image-plate--coal">
-              <div className="image-plate__grain" />
-              <figcaption><span>MAT. STUDY / 01</span><span>REPLACE WITH MATERIAL PHOTOGRAPHY</span></figcaption>
-            </figure>
-          </div>
-        </section>
+    <section className="requirement section section--graphite" id="requirement" aria-labelledby="requirement-title"><div className="shell-grid"><div className="requirement__intro"><SectionLabel inverse>{content.requirementSourcing.label}</SectionLabel><h2 id="requirement-title">{content.requirementSourcing.heading}</h2><p>{content.requirementSourcing.body}</p></div><div className="requirement__sequence">{requirementDimensions.map((dimension) => <article className="requirement-step" key={dimension.id}><span className="requirement-step__number">{String(dimension.displayOrder).padStart(2, "0")}</span><div><h3>{dimension.label}</h3><p>{dimension.detail}</p></div><span className="requirement-step__cross" aria-hidden="true">+</span></article>)}<div className="requirement__result"><span>{content.requirementSourcing.resultLabel}</span><strong><EditorialLines lines={content.requirementSourcing.result} /></strong><Arrow diagonal /></div></div></div></section>
 
-        <section className="industries section section--ink" id="industries" aria-labelledby="industries-title">
-          <div className="shell-grid industries__top">
-            <SectionLabel inverse>Industrial applications / 04</SectionLabel>
-            <p>For businesses that depend on steady heat, process energy and material that fits the job.</p>
-          </div>
-          <div className="industries__list" id="industries-title">
-            {industries.map((industry, index) => <div className="industry-line" key={industry}><span>{String(index + 1).padStart(2, "0")}</span><h2>{industry}</h2><i /></div>)}
-          </div>
-          <div className="shell-grid industries__foot"><span>INDUSTRIAL COAL USERS</span><span>APPLICATION-SPECIFIC DISCUSSION WELCOME</span></div>
-        </section>
+    <section className="sourcing section section--white" id="coal" aria-labelledby="sourcing-title"><div className="shell-grid sourcing__grid"><div className="sourcing__intro"><SectionLabel>{content.sourcing.label}</SectionLabel><h2 id="sourcing-title">{content.sourcing.heading}</h2><p>{content.sourcing.body}</p></div><div className="sourcing__list">{products.map((product) => <article className="source-row" key={product.id}><span>{String(product.displayOrder).padStart(2, "0")}</span><h3>{product.name}</h3><p>{product.shortDescription}</p><Arrow diagonal /></article>)}</div><figure className="sourcing__media image-plate image-plate--coal" style={sourcingMediaStyle} role="img" aria-label={content.sourcing.media.altText} data-media-id={content.sourcing.media.id}><div className="image-plate__grain" /><figcaption><span>{content.sourcing.mediaCaption[0]}</span><span>{content.sourcing.mediaCaption[1]}</span></figcaption></figure></div></section>
 
-        <section className="routes section section--mineral" aria-labelledby="routes-title">
-          <div className="shell-grid routes__grid">
-            <div className="routes__copy">
-              <SectionLabel>Operating ambition / 05</SectionLabel>
-              <h2 id="routes-title">Connected to industrial demand beyond one region.</h2>
-              <p>Current industry experience includes Maharashtra, Telangana / Hyderabad, Andhra Pradesh / Visakhapatnam, Karnataka and Gujarat.</p>
-              <p className="technical-copy">Pan-India supply is considered subject to sourcing, availability and commercial feasibility. The diagram reflects experience and operating ambition—not office locations.</p>
-            </div>
-            <div className="routes__diagram"><RouteDiagram /></div>
-          </div>
-        </section>
+    <section className="industries section section--ink" id="industries" aria-labelledby="industries-title"><div className="shell-grid industries__top"><SectionLabel inverse>{content.industries.label}</SectionLabel><p>{content.industries.body}</p></div><div className="industries__list" id="industries-title">{industries.map((industry) => <div className="industry-line" key={industry.id}><span>{String(industry.displayOrder).padStart(2, "0")}</span><h2>{industry.name}</h2><i /></div>)}</div><div className="shell-grid industries__foot"><span>{content.industries.footLabels[0]}</span><span>{content.industries.footLabels[1]}</span></div></section>
 
-        <section className="operations section section--white" id="operations" aria-labelledby="operations-title">
-          <figure className="operations__media image-plate image-plate--yard">
-            <div className="operations__overlay"><span>WANI / MH</span><span>PHOTO PLACEHOLDER</span></div>
-            <figcaption>Stocking facility<br />Wani, Maharashtra</figcaption>
-          </figure>
-          <div className="operations__copy">
-            <SectionLabel>Operations / 06</SectionLabel>
-            <h2 id="operations-title">A physical base at the heart of the coal belt.</h2>
-            <p>Star Energies has a stocking facility in Wani, Maharashtra—giving the operation a practical point of presence close to the work.</p>
-            <div className="operations__note"><span>LOGISTICS NOTE</span><p>Transportation may be coordinated through third-party providers. Star Energies does not operate its own transport fleet.</p></div>
-          </div>
-        </section>
+    <section className="routes section section--mineral" aria-labelledby="routes-title"><div className="shell-grid routes__grid"><div className="routes__copy"><SectionLabel>{content.coverage.label}</SectionLabel><h2 id="routes-title">{content.coverage.heading}</h2><p>{content.coverage.body}</p><p className="technical-copy">{content.coverage.qualification}</p></div><div className="routes__diagram"><RouteDiagram regions={coverageRegions} note={content.coverage.mapNote} /></div></div></section>
 
-        <section className="quality section section--stone" aria-labelledby="quality-title">
-          <div className="shell-grid quality__grid">
-            <div className="quality__intro">
-              <SectionLabel>Quality information / 07</SectionLabel>
-              <h2 id="quality-title">Know the parameters that matter to your process.</h2>
-              <p>Quality and testing information can be shared according to your requirement and what is available for the material under consideration.</p>
-            </div>
-            <div className="quality__table" role="table" aria-label="Potential quality information parameters">
-              <div className="quality__table-head" role="row"><span>PARAMETER</span><span>DESCRIPTION</span><span>REPORTING CONTEXT</span></div>
-              {qualityParameters.map((item) => <div className="quality-row" role="row" key={item.code}><strong>{item.code}</strong><span>{item.name}</span><em>{item.note}</em></div>)}
-            </div>
-          </div>
-          <div className="quality__foot shell-grid"><span>QUALITY INFORMATION IS REQUIREMENT-LED</span><span>NO UNIVERSAL CERTIFICATION CLAIMED</span></div>
-        </section>
+    <section className="operations section section--white" id="operations" aria-labelledby="operations-title"><figure className="operations__media image-plate image-plate--yard" style={facilityMediaStyle} role="img" aria-label={content.facility.media.altText} data-media-id={content.facility.media.id}><div className="operations__overlay"><span>{content.facility.mediaCaption[0]}</span><span>{content.facility.mediaCaption[1]}</span></div><figcaption>{content.facility.figureCaption}<br />{siteSettings.address.city}, {siteSettings.address.state}</figcaption></figure><div className="operations__copy"><SectionLabel>{content.facility.label}</SectionLabel><h2 id="operations-title">{content.facility.heading}</h2><p>{content.facility.body}</p><div className="operations__note"><span>{content.facility.logisticsNoteLabel}</span><p>{content.facility.logisticsNote}</p></div></div></section>
 
-        <section className="experience section section--graphite" id="experience" aria-labelledby="experience-title">
-          <div className="experience__measure" aria-hidden="true"><span>00</span><i /><span>25</span><i /><span>NOW</span></div>
-          <div className="shell-grid experience__grid">
-            <div><SectionLabel inverse>Experience / 08</SectionLabel></div>
-            <div className="experience__copy">
-              <p className="experience__pretitle">Star Energies is a new business.</p>
-              <h2 id="experience-title">Built with <em>approximately 25 years</em> of coal-industry experience behind it.</h2>
-              <p>That experience brings market understanding, relationships and a grounded view of how industrial requirements are actually fulfilled. Star Energies is being built as the next chapter: focused, responsive and ready to grow responsibly.</p>
-            </div>
-          </div>
-        </section>
+    <section className="quality section section--stone" aria-labelledby="quality-title"><div className="shell-grid quality__grid"><div className="quality__intro"><SectionLabel>{content.quality.label}</SectionLabel><h2 id="quality-title">{content.quality.heading}</h2><p>{content.quality.body}</p></div><div className="quality__table" role="table" aria-label="Potential quality information parameters"><div className="quality__table-head" role="row"><span>{content.quality.tableHeadings[0]}</span><span>{content.quality.tableHeadings[1]}</span><span>{content.quality.tableHeadings[2]}</span></div>{qualityParameters.map((parameter) => <div className="quality-row" role="row" key={parameter.id}><strong>{parameter.shortLabel}</strong><span>{parameter.name}</span><em>{parameter.description}</em></div>)}</div></div><div className="quality__foot shell-grid"><span>{content.quality.footLabels[0]}</span><span>{content.quality.footLabels[1]}</span></div></section>
 
-        <section className="enquire section" id="enquire" aria-labelledby="enquire-title">
-          <div className="enquire__rule" />
-          <div className="shell-grid enquire__grid">
-            <div><SectionLabel>Start a conversation / 09</SectionLabel></div>
-            <div className="enquire__main">
-              <h2 id="enquire-title">Have a coal requirement?<br /><em>Let’s make it specific.</em></h2>
-              <p>Share grade, size, quantity and destination. We’ll start with the details that help determine a suitable route.</p>
-              <div className="enquire__actions"><a className="button button--dark" href={siteConfig.contact.emailHref}>Request a Quote <Arrow diagonal /></a><a className="button button--line" href={siteConfig.contact.whatsappHref}>WhatsApp <Arrow diagonal /></a></div>
-            </div>
-            <address className="enquire__contact">
-              <a href={siteConfig.contact.phoneHref}><span>CALL</span>{siteConfig.contact.phoneDisplay}</a>
-              <a href={siteConfig.contact.emailHref}><span>EMAIL</span>{siteConfig.contact.email}</a>
-              <p>{siteConfig.location}</p>
-            </address>
-          </div>
-        </section>
-      </main>
-    </>
-  );
+    <section className="experience section section--graphite" id="experience" aria-labelledby="experience-title"><div className="experience__measure" aria-hidden="true"><span>{content.experience.measure[0]}</span><i /><span>{content.experience.measure[1]}</span><i /><span>{content.experience.measure[2]}</span></div><div className="shell-grid experience__grid"><div><SectionLabel inverse>{content.experience.label}</SectionLabel></div><div className="experience__copy"><p className="experience__pretitle">{content.experience.pretitle}</p><h2 id="experience-title"><EditorialLines lines={content.experience.heading} /></h2><p>{content.experience.body}</p></div></div></section>
+
+    <section className="enquire section" id="enquire" aria-labelledby="enquire-title"><div className="enquire__rule" /><div className="shell-grid enquire__grid"><div><SectionLabel>{content.finalCTA.label}</SectionLabel></div><div className="enquire__main"><h2 id="enquire-title"><EditorialLines lines={content.finalCTA.heading} /></h2><p>{content.finalCTA.body}</p><div className="enquire__actions"><a className="button button--dark" href={content.finalCTA.primaryCTA.href}>{content.finalCTA.primaryCTA.label} <Arrow diagonal /></a><a className="button button--line" href={content.finalCTA.secondaryCTA.href}>{content.finalCTA.secondaryCTA.label} <Arrow diagonal /></a></div></div><address className="enquire__contact"><a href={siteSettings.contact.phoneHref}><span>{content.finalCTA.contactLabels[0]}</span>{siteSettings.contact.phoneDisplay}</a><a href={siteSettings.contact.emailHref}><span>{content.finalCTA.contactLabels[1]}</span>{siteSettings.contact.email}</a><p>{siteSettings.address.display}</p></address></div></section>
+  </main>;
 }

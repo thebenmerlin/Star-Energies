@@ -1,17 +1,16 @@
-import type { Metadata } from "next";
 import { Footer } from "@/components/footer";
 import { SiteHeader } from "@/components/site-header";
+import { getSiteSettings } from "@/lib/content";
+import { createMetadata } from "@/lib/seo";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Star Energies | Industrial Coal, Sourced to Requirement",
-  description: "Requirement-led industrial coal sourcing and supply from Wani, Maharashtra.",
-};
+const siteSettings = getSiteSettings();
+export const metadata = createMetadata(siteSettings.defaultSeo);
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body><SiteHeader />{children}<Footer /></body>
+      <body><SiteHeader navigation={siteSettings.navigation} brandName={siteSettings.brandName} quoteCTA={siteSettings.primaryQuoteCTA} />{children}<Footer /></body>
     </html>
   );
 }

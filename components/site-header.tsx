@@ -3,14 +3,21 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navigation } from "@/lib/site";
+import { routes } from "@/content/routes";
+import type { CallToAction, NavigationItem } from "@/types/content";
 import { Mark } from "./mark";
 
-export function SiteHeader() {
+type SiteHeaderProps = {
+  navigation: readonly NavigationItem[];
+  brandName: string;
+  quoteCTA: CallToAction;
+};
+
+export function SiteHeader({ navigation, brandName, quoteCTA }: SiteHeaderProps) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const hasLightOpening = ["/coal", "/contact", "/privacy"].includes(pathname);
+  const hasLightOpening = [routes.coal, routes.contact, routes.privacy].includes(pathname);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -28,14 +35,14 @@ export function SiteHeader() {
     <header className={`site-header ${hasLightOpening ? "site-header--on-light" : ""} ${scrolled || open ? "site-header--solid" : ""}`}>
       <div className="site-header__inner">
         <Link className="site-header__brand" href="/" onClick={() => setOpen(false)}>
-          <Mark inverse={!hasLightOpening || scrolled || open} />
+          <Mark brandName={brandName} inverse={!hasLightOpening || scrolled || open} />
         </Link>
         <nav className="site-nav" aria-label="Primary navigation">
           {navigation.map((item) => (
-            <Link key={item.label} href={item.href} aria-current={pathname === item.href ? "page" : undefined} className={pathname === item.href ? "is-active" : ""}>{item.label}</Link>
+            <Link key={item.route} href={routes[item.route]} aria-current={pathname === routes[item.route] ? "page" : undefined} className={pathname === routes[item.route] ? "is-active" : ""}>{item.label}</Link>
           ))}
         </nav>
-        <Link className="header-cta" href="/contact#quote">Request a Quote <span>↗</span></Link>
+        <Link className="header-cta" href={quoteCTA.href}> {quoteCTA.label} <span>↗</span></Link>
         <button
           className={`menu-toggle ${open ? "menu-toggle--open" : ""}`}
           type="button"
@@ -49,12 +56,12 @@ export function SiteHeader() {
       <div className={`mobile-menu ${open ? "mobile-menu--open" : ""}`}>
         <nav aria-label="Mobile navigation">
           {navigation.map((item, index) => (
-            <Link key={item.label} href={item.href} aria-current={pathname === item.href ? "page" : undefined} className={pathname === item.href ? "is-active" : ""} onClick={() => setOpen(false)} style={{ transitionDelay: `${80 + index * 45}ms` }}>
+            <Link key={item.route} href={routes[item.route]} aria-current={pathname === routes[item.route] ? "page" : undefined} className={pathname === routes[item.route] ? "is-active" : ""} onClick={() => setOpen(false)} style={{ transitionDelay: `${80 + index * 45}ms` }}>
               <span>{String(index + 1).padStart(2, "0")}</span>{item.label}<b>↗</b>
             </Link>
           ))}
         </nav>
-        <Link className="button button--amber" href="/contact#quote" onClick={() => setOpen(false)}>Request a Quote <span>↗</span></Link>
+        <Link className="button button--amber" href={quoteCTA.href} onClick={() => setOpen(false)}>{quoteCTA.label} <span>↗</span></Link>
       </div>
     </header>
   );
