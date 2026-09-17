@@ -4,14 +4,14 @@ import type { PrivacyPageContent } from "@/types/content";
 export const privacyPage = {
   seo: {
     title: "Privacy | Star Energies",
-    description: "Placeholder privacy notice for Star Energies website enquiries and business information.",
+    description: "Privacy notice for Star Energies website enquiries and business information.",
     canonicalPath: routes.privacy,
     noIndex: true,
   },
   opening: {
     label: "Privacy / launch preparation",
     heading: [{ text: "Clear information,", breakAfter: true }, { text: "pending legal review.", emphasis: true }],
-    body: "This is a structured placeholder notice for the public website. Final legal wording should be reviewed before the website goes live.",
+    body: "This notice explains the general information used when someone contacts Star Energies. Final legal wording should be reviewed before the website goes live.",
     lastUpdated: "LAST UPDATED\nSEPTEMBER 2026",
   },
   sections: [
@@ -19,7 +19,7 @@ export const privacyPage = {
       id: "purpose",
       displayOrder: 1,
       title: "Purpose of this notice",
-      text: "This placeholder privacy notice explains the general information that may be collected when someone contacts Star Energies. It should be reviewed and replaced with final legal wording before production launch.",
+      text: "This privacy notice explains the general information that may be collected when someone contacts Star Energies. It should be reviewed against final legal wording before production launch.",
     },
     {
       id: "enquiries",

@@ -38,7 +38,7 @@ export const coalPage = {
     body: "Different grades, GCV expectations and coal sizes may be relevant to an enquiry. The information available for a particular material can be discussed in context.",
     cta: { label: "Start a requirement discussion", href: quoteRoute, intent: "quote" },
     media: mediaById["coal-material-placeholder"],
-    mediaCaption: "MATERIAL STUDY / REPLACE WITH CLIENT PHOTOGRAPHY",
+    mediaCaption: "MATERIAL STUDY / COAL MATERIAL",
   },
   quality: {
     label: "Potential quality information / 05",

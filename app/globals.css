@@ -459,8 +459,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* The approved abstract hero remains in place for development placeholders.
    A production media record automatically occupies the same composition. */
 .hero__scene-media { position: absolute; inset: 0; background-image: var(--hero-media); background-position: center; background-size: cover; opacity: .72; transition: opacity .25s ease; }
-.hero__scene--placeholder .hero__scene-media { opacity: 0; }
-.hero__scene:not(.hero__scene--placeholder) .hero__scene-grid, .hero__scene:not(.hero__scene--placeholder) .hero__scene-mass { opacity: 0; }
+.hero__scene-grid, .hero__scene-mass { opacity: 0; }
 
 /* Phase 4 — Admin console */
 .admin-shell { min-height: 100svh; display: grid; grid-template-columns: 258px minmax(0, 1fr); background: #eeece4; color: var(--ink); font-family: var(--sans); }

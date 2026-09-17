@@ -20,7 +20,7 @@ export const homePage = {
     primaryCTA: { label: "Request a Quote", href: "#enquire", intent: "quote" },
     secondaryCTA: { label: "WhatsApp or call", href: siteSettings.contact.whatsappHref, intent: "whatsapp", external: true },
     media: mediaById["hero-development-plate"],
-    sceneCaption: "DEVELOPMENT IMAGE PLATE\nCOAL / STOCKING YARD",
+    sceneCaption: "COAL / STOCKING YARD",
     sceneScale: "01 — 04",
     requirementDimensionIds: ["grade", "size", "quantity", "destination"],
     scrollLabel: "SCROLL TO EXPLORE",
@@ -51,7 +51,7 @@ export const homePage = {
     body: "We do not put coal into a public shopping basket. Each enquiry is considered against the material and commercial context at that time, including available auction, trader and supplier routes.",
     productIds: ["wcl-coal", "auction-e-auction-coal", "steam-coal", "requirement-based-sourcing"],
     media: mediaById["coal-material-placeholder"],
-    mediaCaption: ["MAT. STUDY / 01", "REPLACE WITH MATERIAL PHOTOGRAPHY"],
+    mediaCaption: ["MAT. STUDY / 01", "COAL MATERIAL"],
   },
   industries: {
     label: "Industrial applications / 04",
@@ -74,7 +74,7 @@ export const homePage = {
     logisticsNoteLabel: "LOGISTICS NOTE",
     logisticsNote: commercialInformation.transportSummary,
     media: mediaById["wani-yard-placeholder"],
-    mediaCaption: ["WANI / MH", "PHOTO PLACEHOLDER"],
+    mediaCaption: ["WANI / MH", "STOCKING YARD"],
     figureCaption: "Stocking facility",
   },
   quality: {

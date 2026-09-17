@@ -24,7 +24,7 @@ export const industriesPage = {
     body: "Requirements can differ by process, handling setup, material preference and destination. Star Energies works from the actual need rather than a generic category label.",
     industryIds: ["manufacturing", "chemical-industries", "power", "industrial-boilers", "brick-kilns", "other-industrial-users"],
     media: mediaById["industrial-environment-placeholder"],
-    mediaCaption: "APPLICATION ENVIRONMENT / DEVELOPMENT PLACEHOLDER",
+    mediaCaption: "APPLICATION ENVIRONMENT",
   },
   logic: {
     label: "Requirement logic / 03",

@@ -15,7 +15,7 @@ export const operationsPage = {
     body: "Star Energies has a stocking facility in Wani, Yavatmal, Maharashtra: a practical point of presence close to the operating context.",
     locationLabel: "WANI / YAVATMAL / MH",
     media: mediaById["wani-yard-placeholder"],
-    mediaCaption: "WANI STOCKING FACILITY / DEVELOPMENT PLACEHOLDER",
+    mediaCaption: "WANI STOCKING FACILITY",
   },
   sequence: {
     label: "Operating context / 02",
