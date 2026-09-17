@@ -31,7 +31,7 @@ export const contactPage = {
           fields: [
             { name: "contactPerson", label: "Contact Person", required: true, type: "text", width: "half", autoComplete: "name" },
             { name: "companyName", label: "Company Name", required: true, type: "text", width: "half", autoComplete: "organization" },
-            { name: "phone", label: "Phone", required: false, type: "tel", width: "half", autoComplete: "tel" },
+            { name: "phone", label: "Phone", required: true, type: "tel", width: "half", autoComplete: "tel" },
             { name: "email", label: "Email", required: false, type: "email", width: "half", autoComplete: "email" },
             { name: "whatsapp", label: "WhatsApp", required: false, optional: true, type: "tel", width: "full", autoComplete: "tel" },
           ],
@@ -64,7 +64,7 @@ export const contactPage = {
       validationMessages: {
         incomplete: "Please complete the required fields so we can understand the enquiry.",
         contactMethod: "Please add a phone number or email so we can respond.",
-        success: "Your requirement is ready to send. Enquiry delivery will be connected in a later phase; for now, please call, WhatsApp or email us directly.",
+        success: "Your requirement has been received. Star Energies will contact you to discuss availability and quotation.",
       },
     },
   },

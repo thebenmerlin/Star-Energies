@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
-import type { AdminEnquiry, EnquiryStatus } from "@/types/admin";
+import { useMemo, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import type { AdminEnquiry, EnquiryListResult, EnquiryStatus } from "@/types/enquiry";
 import type { CoverageRegion, MediaAsset, SeoMetadata, SiteSettings } from "@/types/content";
 import { saveCoverageRegionAction, saveSeoAction, saveSiteSettingsAction } from "@/app/admin/actions";
+import { addEnquiryNoteAction, updateEnquiryStatusAction } from "@/app/admin/enquiries/actions";
 import { AdminButton, AdminLink, ConfirmDialog, EmptyState, Field, FormSection, PageHeader, SaveBar, SelectInput, StatusBadge, TextArea, TextInput, Toggle } from "./admin-primitives";
 
 const mediaCategories = ["All categories", "Hero", "Facility", "Coal", "Loading", "Operations", "Industries", "Team", "General"] as const;
@@ -108,29 +110,69 @@ function MediaMetadataEditor({ asset, onCancel, onSave, onReplace }: { asset: Me
   return <div className="admin-dialog-backdrop"><section className="admin-media-editor" role="dialog" aria-modal="true" aria-labelledby="media-editor-title"><header><div><p>MEDIA DETAILS</p><h2 id="media-editor-title">{asset.title}</h2></div><AdminButton type="button" variant="quiet" onClick={onCancel}>Close</AdminButton></header><div className="admin-media-editor__body"><div className="admin-media-editor__preview" style={draft.url ? { backgroundImage: `url("${draft.url}")` } : undefined} /><div><Field label="Title" required><TextInput value={draft.title} onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))} /></Field><Field label="Alt text" required hint="Describe what is visible, not what the website wants to say."><TextArea value={draft.altText} onChange={(event) => setDraft((current) => ({ ...current, altText: event.target.value }))} /></Field><Field label="Caption" hint="Optional"><TextInput value={draft.caption ?? ""} onChange={(event) => setDraft((current) => ({ ...current, caption: event.target.value || undefined }))} /></Field><Field label="Category"><SelectInput value={draft.category} onChange={(event) => setDraft((current) => ({ ...current, category: event.target.value as MediaAsset["category"] }))}><option value="hero">Hero</option><option value="facility">Facility</option><option value="coal">Coal</option><option value="operations">Loading / Operations</option><option value="industrial">Industries / General</option><option value="team">Team</option></SelectInput></Field><Toggle checked={draft.placeholder} onChange={(placeholder) => setDraft((current) => ({ ...current, placeholder }))} label="Development placeholder" detail="Keep enabled until final photography is supplied." /></div></div><footer><AdminButton type="button" variant="line" onClick={onReplace}>Replace image</AdminButton><div><AdminButton type="button" variant="quiet" onClick={onCancel}>Cancel</AdminButton><AdminButton type="button" variant="dark" onClick={() => onSave(draft)}>Save details</AdminButton></div></footer></section></div>;
 }
 
-export function EnquiriesManager({ enquiries }: { enquiries: AdminEnquiry[] }) {
-  const [query, setQuery] = useState(""); const [status, setStatus] = useState("all"); const [sort, setSort] = useState<"newest" | "oldest">("newest");
-  const rows = useMemo(() => enquiries.filter((enquiry) => {
-    const matchesQuery = `${enquiry.companyName} ${enquiry.contactPerson} ${enquiry.deliveryCity} ${enquiry.coalRequirement}`.toLowerCase().includes(query.toLowerCase());
-    return matchesQuery && (status === "all" || enquiry.status === status);
-  }).sort((first, second) => sort === "newest" ? +new Date(second.submittedAt) - +new Date(first.submittedAt) : +new Date(first.submittedAt) - +new Date(second.submittedAt)), [enquiries, query, sort, status]);
+function enquiryHref({ query, status, sort, page }: { query?: string; status?: string; sort?: string; page?: number }) {
+  const params = new URLSearchParams();
+  if (query) params.set("q", query);
+  if (status && status !== "all") params.set("status", status);
+  if (sort === "oldest") params.set("sort", "oldest");
+  if (page && page > 1) params.set("page", String(page));
+  const value = params.toString();
+  return `/admin/enquiries${value ? `?${value}` : ""}`;
+}
+
+export function EnquiriesManager({ result, initialQuery = "", initialStatus = "all", initialSort = "newest" }: { result: EnquiryListResult; initialQuery?: string; initialStatus?: string; initialSort?: "newest" | "oldest" }) {
+  const router = useRouter();
+  const [query, setQuery] = useState(initialQuery);
+  const [status, setStatus] = useState(initialStatus);
+  const [isNavigating, startTransition] = useTransition();
+  const applyFilters = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    startTransition(() => router.push(enquiryHref({ query: query.trim(), status, sort: initialSort })));
+  };
+  const toggleSort = () => startTransition(() => router.push(enquiryHref({ query: initialQuery, status: initialStatus, sort: initialSort === "newest" ? "oldest" : "newest" })));
+  const rows = result.enquiries;
   return <>
-    <PageHeader eyebrow="LEADS / LOCAL DEMONSTRATION DATA" title="Enquiries" description="These enquiries are mock local records. Future form submissions will enter this workflow once persistence is connected." />
-    <section className="admin-table-panel"><div className="admin-list-toolbar"><TextInput value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search company, contact or destination" aria-label="Search enquiries" /><SelectInput value={status} onChange={(event) => setStatus(event.target.value)} aria-label="Filter enquiry status"><option value="all">All statuses</option>{enquiryStatuses.map((item) => <option key={item} value={item}>{item[0].toUpperCase() + item.slice(1)}</option>)}</SelectInput></div><div className="admin-table-tools"><span>{rows.length} {rows.length === 1 ? "enquiry" : "enquiries"}</span><button type="button" onClick={() => setSort((current) => current === "newest" ? "oldest" : "newest")}>Date: {sort === "newest" ? "Newest first" : "Oldest first"}</button></div>{rows.length === 0 ? <EmptyState title="No matching enquiries" body="Change the filters or search for another company, person or delivery city." /> : <div className="admin-table-wrap"><table className="admin-data-table"><thead><tr><th>Company</th><th>Contact</th><th>Requirement</th><th>Quantity</th><th>Destination</th><th>Date</th><th>Status</th><th /></tr></thead><tbody>{rows.map((enquiry) => <tr key={enquiry.id}><td><b>{enquiry.companyName}</b><small>{enquiry.contactPerson}</small></td><td><span className="admin-table-detail">{enquiry.phone}<br />{enquiry.email}</span></td><td>{enquiry.coalRequirement}</td><td>{enquiry.quantity} {enquiry.unit}</td><td>{enquiry.deliveryCity}, {enquiry.state}</td><td>{dateFormat(enquiry.submittedAt)}</td><td><StatusBadge status={enquiry.status} /></td><td><Link className="admin-table-edit" href={`/admin/enquiries/${enquiry.id}`}>Open</Link></td></tr>)}</tbody></table></div>}</section>
+    <PageHeader eyebrow="LEADS / WEBSITE QUOTE FORM" title="Enquiries" description="Private quote requests submitted through the public website. Update the conversation stage as direct contact progresses." />
+    <section className="admin-table-panel"><form className="admin-list-toolbar" onSubmit={applyFilters}><TextInput value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search company, contact, phone or destination" aria-label="Search enquiries" /><SelectInput value={status} onChange={(event) => setStatus(event.target.value)} aria-label="Filter enquiry status"><option value="all">All statuses</option>{enquiryStatuses.map((item) => <option key={item} value={item}>{item[0].toUpperCase() + item.slice(1)}</option>)}</SelectInput><AdminButton type="submit" variant="line" disabled={isNavigating}>Apply</AdminButton></form><div className="admin-table-tools"><span>{result.total} {result.total === 1 ? "enquiry" : "enquiries"}</span><button type="button" onClick={toggleSort}>Date: {initialSort === "newest" ? "Newest first" : "Oldest first"}</button></div>{rows.length === 0 ? <EmptyState title="No matching enquiries" body={result.total === 0 && !initialQuery && initialStatus === "all" ? "New quote requests submitted through the public website will appear here." : "Change the filters or search for another company, person, phone number or delivery city."} /> : <><div className="admin-table-wrap"><table className="admin-data-table"><thead><tr><th>Company</th><th>Contact</th><th>Requirement</th><th>Quantity</th><th>Destination</th><th>Date</th><th>Status</th><th /></tr></thead><tbody>{rows.map((enquiry) => <tr key={enquiry.id}><td><b>{enquiry.companyName}</b><small>{enquiry.contactPerson}</small></td><td><span className="admin-table-detail">{enquiry.phone}<br />{enquiry.email ?? "No email provided"}</span></td><td>{enquiry.coalRequirement}</td><td>{enquiry.quantity} {enquiry.unit}</td><td>{enquiry.deliveryCity}, {enquiry.state}</td><td>{dateFormat(enquiry.submittedAt)}</td><td><StatusBadge status={enquiry.status} /></td><td><Link className="admin-table-edit" href={`/admin/enquiries/${enquiry.id}`}>Open</Link></td></tr>)}</tbody></table></div>{result.totalPages > 1 && <nav className="admin-enquiry-pagination" aria-label="Enquiry pages"><span>Page {result.page} of {result.totalPages}</span><div>{result.page > 1 && <Link href={enquiryHref({ query: initialQuery, status: initialStatus, sort: initialSort, page: result.page - 1 })}>Previous</Link>}{result.page < result.totalPages && <Link href={enquiryHref({ query: initialQuery, status: initialStatus, sort: initialSort, page: result.page + 1 })}>Next</Link>}</div></nav>}</>}</section>
   </>;
 }
 
 export function EnquiryDetail({ initial }: { initial: AdminEnquiry }) {
-  const [enquiry, setEnquiry] = useState(initial); const [note, setNote] = useState(""); const [saved, setSaved] = useState("Local record ready");
-  const updateStatus = (status: EnquiryStatus) => { setEnquiry((current) => ({ ...current, status })); setSaved("Status updated locally"); };
-  const addNote = () => { if (!note.trim()) return; setEnquiry((current) => ({ ...current, notes: [{ id: `note-${Date.now()}`, createdAt: new Date().toISOString(), author: "Star Energies", text: note.trim() }, ...current.notes] })); setNote(""); setSaved("Note added locally"); };
+  const [enquiry, setEnquiry] = useState(initial);
+  const [note, setNote] = useState("");
+  const [saved, setSaved] = useState("Saved in Neon");
+  const [isPending, startTransition] = useTransition();
+  const updateStatus = (status: EnquiryStatus) => {
+    const previous = enquiry.status;
+    setEnquiry((current) => ({ ...current, status }));
+    setSaved("Saving status…");
+    startTransition(async () => {
+      const result = await updateEnquiryStatusAction({ enquiryId: enquiry.id, status });
+      if (!result.ok) { setEnquiry((current) => ({ ...current, status: previous })); setSaved(result.message); return; }
+      setEnquiry((current) => ({ ...current, status: status, updatedAt: result.data?.updatedAt ?? current.updatedAt }));
+      setSaved(result.message);
+    });
+  };
+  const addNote = () => {
+    if (!note.trim()) return;
+    const text = note.trim();
+    setSaved("Saving note…");
+    startTransition(async () => {
+      const result = await addEnquiryNoteAction({ enquiryId: enquiry.id, note: text });
+      if (!result.ok || !result.data) { setSaved(result.message); return; }
+      setEnquiry((current) => ({ ...current, notes: [result.data!, ...current.notes] }));
+      setNote("");
+      setSaved(result.message);
+    });
+  };
+  const whatsappLink = enquiry.whatsapp ? `https://wa.me/${enquiry.whatsapp.replace(/\D/g, "")}` : undefined;
   return <>
     <PageHeader eyebrow={`ENQUIRY / ${enquiry.id.toUpperCase()}`} title={enquiry.companyName} description={`Submitted ${dateFormat(enquiry.submittedAt, { day: "numeric", month: "long", year: "numeric", hour: "numeric", minute: "2-digit" })}`} actions={<Link href="/admin/enquiries" className="admin-button admin-button--line">Back to enquiries</Link>} />
-    <div className="admin-enquiry-layout"><div><section className="admin-enquiry-hero"><div><p>CURRENT STATUS</p><SelectInput value={enquiry.status} onChange={(event) => updateStatus(event.target.value as EnquiryStatus)} aria-label="Change enquiry status">{enquiryStatuses.map((status) => <option value={status} key={status}>{status[0].toUpperCase() + status.slice(1)}</option>)}</SelectInput></div><StatusBadge status={enquiry.status} /><span>{saved}</span></section><DetailSection title="Contact" values={[["Contact person", enquiry.contactPerson], ["Company", enquiry.companyName], ["Phone", enquiry.phone], ["Email", enquiry.email], ["WhatsApp", enquiry.whatsapp ?? "Not provided"]]} /><DetailSection title="Requirement" values={[["Coal requirement", enquiry.coalRequirement], ["Grade / GCV", enquiry.gradeGcv ?? "Not provided"], ["Size", enquiry.size ?? "Not provided"], ["Quantity", `${enquiry.quantity} ${enquiry.unit}`], ["Desired timeline", enquiry.timeline ?? "Not provided"]]} /><DetailSection title="Delivery" values={[["City", enquiry.deliveryCity], ["State", enquiry.state], ["Pincode", enquiry.pincode ?? "Not provided"]]} />{enquiry.message && <DetailSection title="Additional message" values={[["Message", enquiry.message]]} />}</div><aside className="admin-enquiry-notes"><p>INTERNAL NOTES</p><h3>Conversation record</h3><TextArea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Add an internal note…" /><AdminButton type="button" variant="dark" onClick={addNote} disabled={!note.trim()}>Add note</AdminButton><div>{enquiry.notes.length === 0 ? <span className="admin-note-empty">No internal notes yet.</span> : enquiry.notes.map((item) => <article key={item.id}><time>{dateFormat(item.createdAt)}</time><b>{item.author}</b><p>{item.text}</p></article>)}</div></aside></div>
+    <div className="admin-enquiry-layout"><div><section className="admin-enquiry-hero"><div><p>CURRENT STATUS</p><SelectInput value={enquiry.status} onChange={(event) => updateStatus(event.target.value as EnquiryStatus)} aria-label="Change enquiry status" disabled={isPending}>{enquiryStatuses.map((status) => <option value={status} key={status}>{status[0].toUpperCase() + status.slice(1)}</option>)}</SelectInput></div><StatusBadge status={enquiry.status} /><span role="status">{saved}</span></section><DetailSection title="Contact" values={[["Contact person", enquiry.contactPerson], ["Company", enquiry.companyName], ["Phone", <a href={`tel:${enquiry.phone}`}>{enquiry.phone}</a>], ["Email", enquiry.email ? <a href={`mailto:${enquiry.email}`}>{enquiry.email}</a> : "Not provided"], ["WhatsApp", whatsappLink ? <a href={whatsappLink} target="_blank" rel="noreferrer">{enquiry.whatsapp}</a> : "Not provided"]]} /><DetailSection title="Requirement" values={[["Coal requirement", enquiry.coalRequirement], ["Grade / GCV", enquiry.gradeGcv ?? "Not provided"], ["Size", enquiry.size ?? "Not provided"], ["Quantity", `${enquiry.quantity} ${enquiry.unit}`], ["Desired timeline", enquiry.timeline ?? "Not provided"]]} /><DetailSection title="Delivery" values={[["City", enquiry.deliveryCity], ["State", enquiry.state], ["Pincode", enquiry.pincode ?? "Not provided"]]} />{enquiry.message && <DetailSection title="Additional message" values={[["Message", enquiry.message]]} />}<DetailSection title="System" values={[["Submitted", dateFormat(enquiry.submittedAt, { day: "numeric", month: "long", year: "numeric", hour: "numeric", minute: "2-digit" })], ["Last updated", dateFormat(enquiry.updatedAt, { day: "numeric", month: "long", year: "numeric", hour: "numeric", minute: "2-digit" })], ["Source", "Website quote form"]]} /></div><aside className="admin-enquiry-notes"><p>INTERNAL NOTES</p><h3>Conversation record</h3><TextArea value={note} onChange={(event) => setNote(event.target.value)} placeholder="Add an internal note…" maxLength={2000} /><AdminButton type="button" variant="dark" onClick={addNote} disabled={!note.trim() || isPending}>Add note</AdminButton><div>{enquiry.notes.length === 0 ? <span className="admin-note-empty">No internal notes yet.</span> : enquiry.notes.map((item) => <article key={item.id}><time>{dateFormat(item.createdAt, { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" })}</time><b>{item.author}</b><p>{item.text}</p></article>)}</div></aside></div>
   </>;
 }
 
-function DetailSection({ title, values }: { title: string; values: [string, string][] }) { return <section className="admin-detail-section"><h3>{title}</h3><dl>{values.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section>; }
+function DetailSection({ title, values }: { title: string; values: [string, React.ReactNode][] }) { return <section className="admin-detail-section"><h3>{title}</h3><dl>{values.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section>; }
 
 export function SettingsEditor({ initial }: { initial: SiteSettings }) {
   const [settings, setSettings] = useState(initial); const [state, setState] = useState<"idle" | "dirty" | "saving" | "saved">("idle");

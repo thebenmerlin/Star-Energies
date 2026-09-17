@@ -11,14 +11,12 @@ type DashboardProps = {
   industries: Industry[];
   capabilities: Capability[];
   media: MediaAsset[];
-  enquiries: AdminEnquiry[];
+  enquiryDashboard: { newCount: number; openCount: number; recent: AdminEnquiry[] };
 };
 
 const formatDate = (value: string) => new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value));
 
-export function AdminDashboard({ siteSettings, products, industries, capabilities, media, enquiries }: DashboardProps) {
-  const newEnquiries = enquiries.filter((enquiry) => enquiry.status === "new");
-  const openEnquiries = enquiries.filter((enquiry) => ["new", "contacted", "quoted"].includes(enquiry.status));
+export function AdminDashboard({ siteSettings, products, industries, capabilities, media, enquiryDashboard }: DashboardProps) {
   const placeholderMedia = media.filter((asset) => asset.placeholder);
   const contentItems = products.length + industries.length + capabilities.length;
 
@@ -26,13 +24,13 @@ export function AdminDashboard({ siteSettings, products, industries, capabilitie
     <PageHeader
       eyebrow="OVERVIEW / CMS WORKSPACE"
       title="A clear view of the work in hand."
-      description="This console uses local development content only. Changes can be demonstrated here without affecting the public website."
+      description="A focused view of published website content and the direct commercial conversations now coming through the public quote form."
       actions={<AdminLink href="/admin/enquiries" variant="dark">Review enquiries</AdminLink>}
     />
 
     <section className="admin-kpis" aria-label="Current website activity">
-      <div><p>NEW ENQUIRIES</p><strong>{String(newEnquiries.length).padStart(2, "0")}</strong><span>Awaiting first response</span></div>
-      <div><p>OPEN CONVERSATIONS</p><strong>{String(openEnquiries.length).padStart(2, "0")}</strong><span>New, contacted or quoted</span></div>
+      <div><p>NEW ENQUIRIES</p><strong>{String(enquiryDashboard.newCount).padStart(2, "0")}</strong><span>Awaiting first response</span></div>
+      <div><p>OPEN CONVERSATIONS</p><strong>{String(enquiryDashboard.openCount).padStart(2, "0")}</strong><span>New, contacted or quoted</span></div>
       <div><p>PLACEHOLDER MEDIA</p><strong>{String(placeholderMedia.length).padStart(2, "0")}</strong><span>Ready to be replaced</span></div>
     </section>
 
@@ -40,7 +38,7 @@ export function AdminDashboard({ siteSettings, products, industries, capabilitie
       <section className="admin-panel admin-panel--enquiries">
         <header><div><p>RECENT ENQUIRIES</p><h3>Direct conversations</h3></div><Link href="/admin/enquiries">View all</Link></header>
         <div className="admin-recent-list">
-          {enquiries.slice(0, 4).map((enquiry) => <Link href={`/admin/enquiries/${enquiry.id}`} key={enquiry.id}>
+          {enquiryDashboard.recent.length === 0 ? <p className="admin-recent-empty">No website enquiries yet. New quote requests will appear here.</p> : enquiryDashboard.recent.slice(0, 5).map((enquiry) => <Link href={`/admin/enquiries/${enquiry.id}`} key={enquiry.id}>
             <div><b>{enquiry.companyName}</b><span>{enquiry.coalRequirement} · {enquiry.quantity} {enquiry.unit}</span></div>
             <time dateTime={enquiry.submittedAt}>{formatDate(enquiry.submittedAt)}</time>
             <StatusBadge status={enquiry.status} />

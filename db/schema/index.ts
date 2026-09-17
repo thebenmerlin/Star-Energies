@@ -5,12 +5,14 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
   pgEnum,
   pgTable,
   primaryKey,
   text,
   timestamp,
   uniqueIndex,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
@@ -96,6 +98,8 @@ export const administrators = pgTable("administrator", {
 });
 
 export const contentStatus = pgEnum("content_status", ["draft", "published"]);
+export const enquiryStatus = pgEnum("enquiry_status", ["new", "contacted", "quoted", "closed", "archived"]);
+export const enquirySource = pgEnum("enquiry_source", ["website_quote_form"]);
 
 const contentTimestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -303,4 +307,68 @@ export const mediaReferences = pgTable(
     ...contentTimestamps,
   },
   (table) => [primaryKey({ columns: [table.mediaId, table.scope, table.recordId, table.field] }), index("media_references_media_idx").on(table.mediaId)],
+);
+
+/** Private B2B lead records. These are never part of public content queries. */
+export const enquiries = pgTable(
+  "enquiries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    clientSubmissionId: uuid("client_submission_id").notNull(),
+    dedupeHash: text("dedupe_hash").notNull(),
+    contactName: text("contact_name").notNull(),
+    companyName: text("company_name").notNull(),
+    phone: text("phone").notNull(),
+    email: text("email"),
+    whatsapp: text("whatsapp"),
+    coalRequirement: text("coal_requirement").notNull(),
+    gradeGcv: text("grade_gcv"),
+    size: text("size"),
+    quantity: numeric("quantity", { precision: 14, scale: 2 }).notNull(),
+    unit: text("unit").notNull(),
+    deliveryCity: text("delivery_city").notNull(),
+    deliveryState: text("delivery_state").notNull(),
+    pincode: text("pincode"),
+    desiredTimeline: text("desired_timeline"),
+    message: text("message"),
+    status: enquiryStatus("status").notNull().default("new"),
+    source: enquirySource("source").notNull().default("website_quote_form"),
+    submissionIpHash: text("submission_ip_hash"),
+    userAgent: text("user_agent"),
+    ...contentTimestamps,
+  },
+  (table) => [
+    uniqueIndex("enquiries_submission_id_unique").on(table.clientSubmissionId),
+    index("enquiries_status_created_at_idx").on(table.status, table.createdAt),
+    index("enquiries_created_at_idx").on(table.createdAt),
+    index("enquiries_company_name_idx").on(table.companyName),
+    index("enquiries_dedupe_created_at_idx").on(table.dedupeHash, table.createdAt),
+  ],
+);
+
+/** Brief, private notes for the administrator's conversation record. */
+export const enquiryNotes = pgTable(
+  "enquiry_notes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    enquiryId: uuid("enquiry_id")
+      .notNull()
+      .references(() => enquiries.id, { onDelete: "cascade" }),
+    note: text("note").notNull(),
+    createdBy: text("created_by").references(() => users.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("enquiry_notes_enquiry_created_at_idx").on(table.enquiryId, table.createdAt)],
+);
+
+/** Short-lived, server-side rate-limit buckets keyed by a one-way client IP hash. */
+export const enquiryRateLimitBuckets = pgTable(
+  "enquiry_rate_limit_buckets",
+  {
+    bucket: text("bucket").primaryKey(),
+    windowStartedAt: timestamp("window_started_at", { withTimezone: true }).notNull(),
+    count: integer("count").notNull().default(0),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [check("enquiry_rate_limit_count_nonnegative", sql`${table.count} >= 0`)],
 );

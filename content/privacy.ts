@@ -25,7 +25,7 @@ export const privacyPage = {
       id: "enquiries",
       displayOrder: 2,
       title: "Enquiries and quotation requests",
-      text: "If you contact us by phone, WhatsApp, email or a future enquiry form, information such as your name, company, contact details and requirement details may be used to understand and respond to that business enquiry.",
+      text: "If you contact us by phone, WhatsApp, email or the enquiry form, information such as your name, company, contact details and requirement details may be used to understand and respond to that business enquiry.",
     },
     {
       id: "business-information",

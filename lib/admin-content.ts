@@ -1,7 +1,10 @@
 import "server-only";
 
-import { mockEnquiries } from "@/content/admin-enquiries";
-import { requireAdmin } from "@/lib/auth";
+import {
+  getAdminEnquiries as getPersistentEnquiries,
+  getAdminEnquiry as getPersistentEnquiry,
+  getAdminEnquiryDashboard,
+} from "@/lib/enquiries";
 import {
   getAdminCapabilities,
   getAdminCoverageRegions,
@@ -11,17 +14,17 @@ import {
   getAdminProducts,
   getAdminSiteSettings,
 } from "@/lib/content";
-import type { AdminEnquiry } from "@/types/admin";
+import type { EnquiryListResult } from "@/types/enquiry";
 
-/** CMS-backed admin repository. Enquiries intentionally remain Phase 6 mock data. */
+/** CMS and private-lead data repository for authorized administration screens. */
 export async function getAdminDashboardData() {
-  const [siteSettings, products, industries, capabilities, media, enquiries] = await Promise.all([
+  const [siteSettings, products, industries, capabilities, media, enquiryDashboard] = await Promise.all([
     getAdminSiteSettings(),
     getAdminProducts(),
     getAdminIndustries(),
     getAdminCapabilities(),
     getAdminMediaAssets(),
-    getAdminEnquiries(),
+    getAdminEnquiryDashboard(),
   ]);
   return {
     siteSettings,
@@ -29,7 +32,7 @@ export async function getAdminDashboardData() {
     industries,
     capabilities,
     media,
-    enquiries,
+    enquiryDashboard,
   };
 }
 
@@ -54,11 +57,10 @@ export async function getAdminContentData() {
   };
 }
 
-export async function getAdminEnquiries(): Promise<AdminEnquiry[]> {
-  await requireAdmin();
-  return [...mockEnquiries];
+export async function getAdminEnquiries(options?: Parameters<typeof getPersistentEnquiries>[0]): Promise<EnquiryListResult> {
+  return getPersistentEnquiries(options);
 }
 
 export async function getAdminEnquiry(id: string) {
-  return (await getAdminEnquiries()).find((enquiry) => enquiry.id === id);
+  return getPersistentEnquiry(id);
 }
