@@ -115,6 +115,25 @@ a:hover .arrow-icon { transform: translate(2px, -2px); }
 
 /* Routes */
 .routes__grid { align-items: center; }.routes__copy { grid-column: 1 / span 5; }.routes__copy h2 { margin: 33px 0 28px; font-size: clamp(2.7rem, 4.15vw, 4.85rem); }.routes__copy > p:not(.technical-copy) { max-width: 415px; color: #4b4c47; font-size: 16px; line-height: 1.58; }.routes__copy .technical-copy { max-width: 400px; margin-top: 27px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); }.routes__diagram { grid-column: 7 / -1; }.route-diagram { width: 100%; height: auto; color: rgba(23,24,22,.25); overflow: visible; }.route-diagram__land { fill: rgba(23,24,22,.035); stroke: currentColor; stroke-width: 1; }.route-diagram__grid { fill: url(#route-grid); opacity: .45; }.route-diagram__line path { fill: none; stroke: var(--amber); stroke-width: 1.2; stroke-dasharray: 4 5; }.route-diagram__node circle { fill: var(--amber); stroke: var(--mineral); stroke-width: 2; }.route-diagram__node circle:first-child { fill: var(--ink); stroke: var(--amber); stroke-width: 3; }.route-diagram__text { fill: var(--ink); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }.route-diagram__key { fill: var(--muted); font-family: var(--mono); font-size: 8px; letter-spacing: .11em; }
+.india-map { width: 100%; height: auto; color: rgba(23,24,22,.25); overflow: visible; font-family: var(--mono); }
+.india-map__state { fill: rgba(23,24,22,.025); stroke: rgba(23,24,22,.18); stroke-width: 0.65; transition: fill .2s ease; }
+.india-map__state--active { fill: rgba(191,162,100,.14); stroke: rgba(191,162,100,.65); stroke-width: 1.1; }
+.india-map__state--active:hover { fill: rgba(191,162,100,.24); }
+.india-map__route { fill: none; stroke: var(--amber); stroke-width: 1.6; stroke-dasharray: 4 4; stroke-linecap: round; }
+.india-map__hub-ring { fill: none; stroke: var(--amber); stroke-width: 0.8; stroke-dasharray: 2 2; }
+.india-map__node { fill: var(--amber); stroke: #e8e6df; stroke-width: 2; }
+.india-map__node-inner { fill: var(--ink); }
+.india-map__hub-outer { fill: var(--ink); stroke: var(--amber); stroke-width: 2.5; }
+.india-map__hub-inner { fill: var(--amber-pale); }
+.india-map__badge-bg { fill: var(--ink); }
+.india-map__badge-title { fill: #faeed7; font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: .1em; }
+.india-map__badge-sub { fill: var(--amber-pale); font-family: var(--mono); font-size: 6.5px; letter-spacing: .06em; }
+.india-map__label-title { fill: var(--ink); font-family: var(--mono); font-size: 8.5px; font-weight: 600; letter-spacing: .08em; }
+.india-map__label-sub { fill: #695126; font-family: var(--mono); font-size: 7px; letter-spacing: .04em; }
+.india-map__graticule { stroke: rgba(23,24,22,.07); stroke-width: 0.75; stroke-dasharray: 2 4; }
+.india-map__graticule-text { fill: rgba(23,24,22,.35); font-family: var(--mono); font-size: 7.5px; letter-spacing: .08em; }
+.india-map__compass { color: var(--ink); }
+.india-map__key { fill: var(--muted); font-family: var(--mono); font-size: 8px; letter-spacing: .08em; font-weight: 600; }
 
 /* Operations */
 .operations { display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(0, .96fr); padding-block: 0; min-height: 720px; }.operations__media { min-height: 720px; margin: 0; }.operations__media::before { background-position: center; }.operations__overlay { position: absolute; z-index: 2; top: 25px; left: 26px; right: 26px; display: flex; justify-content: space-between; color: rgba(250,249,245,.75); font-family: var(--mono); font-size: 8px; letter-spacing: .1em; }.operations__media figcaption { left: clamp(32px, 7.5vw, 128px); bottom: 43px; font-family: var(--serif); font-size: clamp(2.25rem, 3.2vw, 4rem); letter-spacing: -.05em; line-height: .88; }.operations__copy { max-width: 620px; padding: var(--section-y) max(40px, calc((100vw - min(100vw - 80px, 1440px)) / 2)) var(--section-y) clamp(48px, 8vw, 145px); display: flex; flex-direction: column; justify-content: center; }.operations__copy h2 { margin: 33px 0 30px; font-size: clamp(2.7rem, 4.15vw, 4.85rem); }.operations__copy > p { max-width: 420px; color: #4d4e49; font-size: 16px; line-height: 1.6; }.operations__note { max-width: 450px; display: grid; grid-template-columns: 100px 1fr; gap: 22px; margin-top: 50px; padding-top: 17px; border-top: 1px solid var(--line); }.operations__note span { color: var(--amber); font-family: var(--mono); font-size: 9px; letter-spacing: .08em; }.operations__note p { margin: 0; color: #484944; font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: -.005em; line-height: 1.55; }

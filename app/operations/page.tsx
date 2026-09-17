@@ -13,15 +13,18 @@ export async function generateMetadata() {
   return createMetadata((await getOperationsPage()).content.seo);
 }
 
+import { IndiaRouteMap } from "@/components/india-route-map";
+
 function OperationsMap({ regions, origin, note }: { regions: readonly CoverageRegion[]; origin: string; note: string }) {
-  const labelFor = (id: string) => regions.find((region) => region.id === id)?.mapLabel ?? "";
-  return <svg className="operations-map" viewBox="0 0 650 500" role="img" aria-label="Diagram showing Wani connected to regions where the business has industry experience">
-    <path className="operations-map__land" d="M310 28 351 50l7 45 42 31-8 42 31 39-17 43 24 48-25 55-6 59-33 20-35-41-21-47-35-26 3-47-37-49 7-61 30-34 18-47 37-18z" />
-    <g className="operations-map__routes"><path d="M284 213C211 209 155 200 55 161" /><path d="M284 213C239 134 191 91 152 51" /><path d="M284 213C348 176 440 147 558 140" /><path d="M284 213C369 259 444 293 569 325" /><path d="M284 213C267 296 220 366 125 416" /></g>
-    <g className="operations-map__nodes"><circle cx="284" cy="213" r="8" /><circle cx="55" cy="161" r="4" /><circle cx="152" cy="51" r="4" /><circle cx="558" cy="140" r="4" /><circle cx="569" cy="325" r="4" /><circle cx="125" cy="416" r="4" /></g>
-    <g className="operations-map__labels"><text x="298" y="207">{origin.toUpperCase()}</text><text x="5" y="148">{labelFor("gujarat")}</text><text x="93" y="35">{labelFor("maharashtra")}</text><text x="480" y="128">{labelFor("andhra-visakhapatnam")}</text><text x="505" y="347">{labelFor("telangana-hyderabad")}</text><text x="61" y="441">{labelFor("karnataka")}</text></g>
-    <text className="operations-map__note" x="6" y="480">{note}</text>
-  </svg>;
+  return (
+    <IndiaRouteMap
+      className="operations-map"
+      regions={regions}
+      origin={origin}
+      note={note}
+      ariaLabel="Diagram showing Wani connected to regions where the business has industry experience"
+    />
+  );
 }
 
 export default async function OperationsPage() {

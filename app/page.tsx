@@ -16,17 +16,18 @@ function CapabilityDiagram({ labels }: { labels: readonly [string, string] }) {
   return <div className="capability-diagram" aria-hidden="true"><div className="capability-diagram__orbit" /><div className="capability-diagram__ring capability-diagram__ring--one" /><div className="capability-diagram__ring capability-diagram__ring--two" /><span className="capability-diagram__label capability-diagram__label--one"><LineBreaks text={labels[0]} /></span><span className="capability-diagram__label capability-diagram__label--two"><LineBreaks text={labels[1]} /></span><span className="capability-diagram__dot capability-diagram__dot--one" /><span className="capability-diagram__dot capability-diagram__dot--two" /></div>;
 }
 
-function RouteDiagram({ regions, note }: { regions: readonly CoverageRegion[]; note: string }) {
-  const labelFor = (id: string) => regions.find((region) => region.id === id)?.mapLabel ?? "";
+import { IndiaRouteMap } from "@/components/india-route-map";
 
-  return <svg className="route-diagram" viewBox="0 0 620 530" role="img" aria-label="Operating experience connecting Wani with industrial regions across India">
-    <defs><pattern id="route-grid" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M 16 0 L 0 0 0 16" fill="none" stroke="currentColor" strokeWidth="0.5" /></pattern></defs>
-    <path className="route-diagram__land" d="M310 43 355 64l8 46 43 31-9 43 33 37-17 45 22 51-26 55-7 60-34 21-35-43-23-49-35-25 3-49-38-51 6-62 31-35 19-50 36-17z" /><path className="route-diagram__grid" d="M310 43 355 64l8 46 43 31-9 43 33 37-17 45 22 51-26 55-7 60-34 21-35-43-23-49-35-25 3-49-38-51 6-62 31-35 19-50 36-17z" />
-    <g className="route-diagram__line"><path d="M285 228 C225 218 155 224 75 183" /><path d="M285 228 C239 147 193 103 172 77" /><path d="M285 228 C348 182 440 161 532 150" /><path d="M285 228 C363 267 430 307 535 330" /><path d="M285 228 C278 302 235 373 167 415" /></g>
-    <g className="route-diagram__node"><circle cx="285" cy="228" r="7" /><circle cx="75" cy="183" r="4" /><circle cx="172" cy="77" r="4" /><circle cx="532" cy="150" r="4" /><circle cx="535" cy="330" r="4" /><circle cx="167" cy="415" r="4" /></g>
-    <g className="route-diagram__text"><text x="297" y="222">WANI</text><text x="20" y="172">{labelFor("gujarat")}</text><text x="116" y="62">{labelFor("maharashtra")}</text><text x="465" y="140">{labelFor("andhra-visakhapatnam")}</text><text x="478" y="352">{labelFor("telangana-hyderabad")}</text><text x="100" y="440">{labelFor("karnataka")}</text></g>
-    <text className="route-diagram__key" x="23" y="496">{note}</text>
-  </svg>;
+function RouteDiagram({ regions, note }: { regions: readonly CoverageRegion[]; note: string }) {
+  return (
+    <IndiaRouteMap
+      className="route-diagram"
+      regions={regions}
+      origin="Wani"
+      note={note}
+      ariaLabel="Operating experience connecting Wani with industrial regions across India"
+    />
+  );
 }
 
 export default async function HomePage() {
