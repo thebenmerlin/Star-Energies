@@ -2,6 +2,9 @@
   "name": "star-energies",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
@@ -22,7 +25,6 @@
     "better-auth": "^1.7.5",
     "cloudinary": "^2.11.0",
     "drizzle-orm": "^0.45.2",
-    "file-type": "^21.3.4",
     "next": "^16.3.5",
     "react": "19.0.0",
     "react-dom": "19.0.0",

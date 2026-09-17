@@ -13,6 +13,9 @@ const mediaCategories = ["All categories", "Hero", "Facility", "Coal", "Loading"
 const categoryMap: Record<string, MediaAsset["category"] | undefined> = { Hero: "hero", Facility: "facility", Coal: "coal", Loading: "operations", Operations: "operations", Industries: "industrial", Team: "team", General: "industrial" };
 const enquiryStatuses: EnquiryStatus[] = ["new", "contacted", "quoted", "closed", "archived"];
 const dateFormat = (date: string, options: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short", year: "numeric" }) => new Intl.DateTimeFormat("en-IN", options).format(new Date(date));
+const maxMediaBytes = 12 * 1024 * 1024;
+
+type CloudinaryUploadSignature = { assetId: string; cloudName: string; apiKey: string; folder: string; publicId: string; timestamp: number; signature: string; tags: string };
 
 export function CoverageManager({ regions }: { regions: CoverageRegion[] }) {
   const [rows, setRows] = useState(regions);
@@ -56,6 +59,7 @@ export function MediaLibrary({ media }: { media: MediaAsset[] }) {
   const [deleteTarget, setDeleteTarget] = useState<MediaAsset | null>(null);
   const [replacingId, setReplacingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const filtered = useMemo(() => assets.filter((asset) => {
     const matchesQuery = `${asset.title} ${asset.altText} ${asset.category}`.toLowerCase().includes(query.toLowerCase());
@@ -63,21 +67,45 @@ export function MediaLibrary({ media }: { media: MediaAsset[] }) {
     return matchesQuery && matchesCategory;
   }), [assets, category, query]);
   const uploadMedia = async (file?: File) => {
-    if (!file) return;
+    if (!file || uploading) return;
     setMessage(null);
-    const formData = new FormData();
-    formData.set("file", file);
-    const selectedCategory = categoryMap[category];
-    if (selectedCategory) formData.set("category", selectedCategory);
-    const endpoint = replacingId ? `/api/admin/media/${replacingId}` : "/api/admin/media";
-    const response = await fetch(endpoint, { method: replacingId ? "PUT" : "POST", body: formData });
-    const data = await response.json() as { asset?: MediaAsset; message?: string };
-    if (!response.ok || !data.asset) { setMessage(data.message ?? "The image could not be uploaded."); return; }
-    const asset = data.asset;
-    setAssets((current) => replacingId ? current.map((item) => item.id === asset.id ? asset : item) : [asset, ...current]);
-    setEditing(asset);
-    setReplacingId(null);
-    if (inputRef.current) inputRef.current.value = "";
+    if (file.size === 0) { setMessage("Choose an image file to upload."); return; }
+    if (file.size > maxMediaBytes) { setMessage("Images must be 12 MB or smaller."); return; }
+    if (file.type && !["image/jpeg", "image/png", "image/webp", "image/avif"].includes(file.type)) { setMessage("Use a JPEG, PNG, WebP, or AVIF image."); return; }
+    const existing = replacingId ? assets.find((asset) => asset.id === replacingId) : undefined;
+    const uploadCategory = existing?.category ?? categoryMap[category] ?? "industrial";
+    setUploading(true);
+    setMessage("Uploading image…");
+    try {
+      const signatureResponse = await fetch("/api/admin/media/signature", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ category: uploadCategory }) });
+      const signatureData = await signatureResponse.json() as CloudinaryUploadSignature & { message?: string };
+      if (!signatureResponse.ok || !signatureData.signature) { setMessage(signatureData.message ?? "The image upload could not be prepared."); return; }
+
+      const uploadData = new FormData();
+      uploadData.set("file", file);
+      uploadData.set("api_key", signatureData.apiKey);
+      uploadData.set("timestamp", String(signatureData.timestamp));
+      uploadData.set("signature", signatureData.signature);
+      uploadData.set("folder", signatureData.folder);
+      uploadData.set("public_id", signatureData.publicId);
+      uploadData.set("tags", signatureData.tags);
+      const cloudinaryResponse = await fetch(`https://api.cloudinary.com/v1_1/${signatureData.cloudName}/image/upload`, { method: "POST", body: uploadData });
+      if (!cloudinaryResponse.ok) { setMessage("Cloudinary could not receive this image. Please try again."); return; }
+
+      const endpoint = replacingId ? `/api/admin/media/${replacingId}` : "/api/admin/media";
+      const response = await fetch(endpoint, { method: replacingId ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ assetId: signatureData.assetId, category: uploadCategory }) });
+      const data = await response.json() as { asset?: MediaAsset; message?: string };
+      if (!response.ok || !data.asset) { setMessage(data.message ?? "The image could not be saved to the media library."); return; }
+      const asset = data.asset;
+      setAssets((current) => replacingId ? current.map((item) => item.id === asset.id ? asset : item) : [asset, ...current]);
+      setEditing(asset);
+      setReplacingId(null);
+      if (inputRef.current) inputRef.current.value = "";
+    } catch {
+      setMessage("The image could not be uploaded. Please try again.");
+    } finally {
+      setUploading(false);
+    }
   };
   const saveMetadata = async (updated: MediaAsset) => {
     const response = await fetch(`/api/admin/media/${updated.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: updated.title, altText: updated.altText, label: updated.label, caption: updated.caption, category: updated.category, placeholder: updated.placeholder }) });
@@ -95,8 +123,8 @@ export function MediaLibrary({ media }: { media: MediaAsset[] }) {
     setDeleteTarget(null);
   };
   return <>
-    <PageHeader eyebrow="MEDIA" title="Photography library" description="Development placeholders are clearly labelled so they can be replaced before production launch." actions={<AdminButton type="button" variant="dark" onClick={() => inputRef.current?.click()}>Upload image</AdminButton>} />
-    <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="sr-only" onChange={(event) => uploadMedia(event.target.files?.[0])} />
+    <PageHeader eyebrow="MEDIA" title="Photography library" description="Development placeholders are clearly labelled so they can be replaced before production launch." actions={<AdminButton type="button" variant="dark" onClick={() => inputRef.current?.click()} disabled={uploading}>{uploading ? "Uploading…" : "Upload image"}</AdminButton>} />
+    <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="sr-only" disabled={uploading} onChange={(event) => uploadMedia(event.target.files?.[0])} />
     {message && <div className="admin-placeholder-alert" role="status"><b>MEDIA ACTION</b><span>{message}</span></div>}
     <section className="admin-media-toolbar"><TextInput value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search photography" aria-label="Search photography" /><SelectInput value={category} onChange={(event) => setCategory(event.target.value)} aria-label="Filter media category">{mediaCategories.map((item) => <option value={item} key={item}>{item}</option>)}</SelectInput><div className="admin-view-switch"><button type="button" className={layout === "grid" ? "is-active" : ""} onClick={() => setLayout("grid")}>Grid</button><button type="button" className={layout === "list" ? "is-active" : ""} onClick={() => setLayout("list")}>List</button></div></section>
     {filtered.length === 0 ? <EmptyState title="No media found" body="Try a different search or category, or add an image to the local library." action={<AdminButton type="button" variant="line" onClick={() => inputRef.current?.click()}>Upload image</AdminButton>} /> : <div className={`admin-media-library admin-media-library--${layout}`}>{filtered.map((asset) => <article key={asset.id}><div className="admin-media-library__image" style={asset.url ? { backgroundImage: `url("${asset.url}")` } : undefined}>{!asset.url && <span>Logo asset pending</span>}<div><StatusBadge status={asset.placeholder ? "draft" : "published"} />{asset.placeholder && <small>Placeholder</small>}</div></div><div className="admin-media-library__details"><span>{asset.category}</span><h3>{asset.title}</h3><p>{asset.altText}</p><div><button type="button" onClick={() => setEditing(asset)}>Edit details</button><button type="button" onClick={() => setDeleteTarget(asset)}>Delete</button></div></div></article>)}</div>}

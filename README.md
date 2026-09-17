@@ -109,7 +109,7 @@ After applying migration `0004`, verify:
 
 ## Deployment
 
-Configure every required value from `.env.example` in the production host. Use a runtime app database role with only the privileges needed by the application; keep migration/owner credentials separate. Deploy migrations before or alongside the application release, seed only the approved initial content, bootstrap the administrator once, and test login plus a real media upload before launch.
+The project is deployment-ready for Vercel. See [the Vercel deployment guide](docs/vercel-deployment.md) for the exact project settings, environment-variable scopes, Neon migration/bootstrap sequence, signed Cloudinary upload architecture, and first-production verification steps.
 
 ## Production checklist
 
@@ -118,6 +118,7 @@ Configure every required value from `.env.example` in the production host. Use a
 - [ ] Approved content seed verified
 - [ ] Initial administrator created; no bootstrap password retained
 - [ ] `BETTER_AUTH_SECRET` set to a unique high-entropy production value
+- [ ] Vercel Production environment variables configured, including the stable `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`
 - [ ] Cloudinary product environment and restricted API credentials configured
 - [ ] Media upload, replace, and protected delete tested
 - [ ] Final phone, WhatsApp, email, address, GSTIN, logo, and photography entered

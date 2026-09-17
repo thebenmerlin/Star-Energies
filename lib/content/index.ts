@@ -324,9 +324,10 @@ const getCachedPrivacyPage = cachedPage<PrivacyPageContent>("privacy", ["privacy
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   // A configured application always reads this singleton from Neon. Keeping the
-  // approved seed settings available without DATABASE_URL lets Next render its
-  // framework fallback pages during local/build setup before the CMS is seeded.
-  if (!process.env.DATABASE_URL) return developmentSiteSettings;
+  // approved seed settings available during a production build lets Vercel
+  // produce its framework fallback pages before the first Neon migration has
+  // been applied. Runtime requests still use Neon whenever DATABASE_URL exists.
+  if (!process.env.DATABASE_URL || process.env.NEXT_PHASE === "phase-production-build") return developmentSiteSettings;
   return getCachedSiteSettings();
 }
 

@@ -5,18 +5,19 @@ import { z } from "zod";
 import { getDatabase } from "@/db";
 import { mediaAssets } from "@/db/schema";
 import { requireAdmin, AdminAuthorizationError } from "@/lib/auth";
-import { getCloudinaryDeliveryUrl, uploadImageToCloudinary, validateImageUpload } from "@/lib/cloudinary";
+import { deleteCloudinaryImage, getCloudinaryDeliveryUrl, getCloudinaryPublicId, verifyCloudinaryImageUpload } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
 
-type FormDataReader = { get(name: string): FormDataEntryValue | null };
-
 const mediaCategorySchema = z.enum(["logo", "coal", "facility", "industrial", "operations", "team", "hero"]);
+const uploadedMediaSchema = z.object({
+  assetId: z.string().uuid(),
+  category: mediaCategorySchema,
+});
 const uploadMessages = new Set([
-  "Choose an image file to upload.",
   "Images must be 12 MB or smaller.",
   "Use a JPEG, PNG, WebP, or AVIF image.",
-  "The image file type does not match its contents.",
+  "Cloudinary did not return a valid uploaded image.",
 ]);
 
 function mediaError(error: unknown) {
@@ -36,21 +37,18 @@ function serializeMedia(asset: typeof mediaAssets.$inferSelect) {
 }
 
 export async function POST(request: Request) {
+  let orphanedCloudinaryPublicId: string | undefined;
   try {
     await requireAdmin();
-    const formData = await request.formData() as unknown as FormDataReader;
-    const file = formData.get("file");
-    if (!(file instanceof File)) throw new Error("Choose an image file to upload.");
-
-    const category = mediaCategorySchema.parse(formData.get("category") ?? "industrial");
-    const image = await validateImageUpload(file);
-    const upload = await uploadImageToCloudinary(image, category);
-    const title = (String(formData.get("title") ?? file.name.replace(/\.[^.]+$/, "")).trim() || "Untitled image").slice(0, 120);
-    const altText = (String(formData.get("altText") ?? "Uploaded image awaiting final descriptive alt text.").trim()).slice(0, 180);
-    const label = (String(formData.get("label") ?? "UPLOADED MEDIA").trim() || "UPLOADED MEDIA").slice(0, 100);
+    const { assetId, category } = uploadedMediaSchema.parse(await request.json());
+    orphanedCloudinaryPublicId = getCloudinaryPublicId(assetId, category);
+    const upload = await verifyCloudinaryImageUpload(assetId, category);
+    const title = (upload.originalFilename.replace(/[-_]+/g, " ").trim() || "Untitled image").slice(0, 120);
+    const altText = "Uploaded image awaiting final descriptive alt text.";
+    const label = "UPLOADED MEDIA";
 
     const [asset] = await getDatabase().insert(mediaAssets).values({
-      id: upload.id,
+      id: assetId,
       cloudinaryPublicId: upload.cloudinaryPublicId,
       secureUrl: upload.secureUrl,
       originalFilename: upload.originalFilename,
@@ -66,9 +64,13 @@ export async function POST(request: Request) {
       placeholder: false,
     }).returning();
 
+    orphanedCloudinaryPublicId = undefined;
     refreshMedia();
     return NextResponse.json({ asset: serializeMedia(asset) });
   } catch (error) {
+    if (orphanedCloudinaryPublicId) {
+      await deleteCloudinaryImage(orphanedCloudinaryPublicId).catch(() => undefined);
+    }
     console.error("Media upload failed", error instanceof Error ? error.message : "Unknown error");
     return mediaError(error);
   }

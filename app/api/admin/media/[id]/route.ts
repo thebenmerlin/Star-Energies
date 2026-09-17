@@ -6,11 +6,9 @@ import { z } from "zod";
 import { getDatabase } from "@/db";
 import { mediaAssets, mediaReferences } from "@/db/schema";
 import { requireAdmin, AdminAuthorizationError } from "@/lib/auth";
-import { deleteCloudinaryImage, getCloudinaryDeliveryUrl, uploadImageToCloudinary, validateImageUpload } from "@/lib/cloudinary";
+import { deleteCloudinaryImage, getCloudinaryDeliveryUrl, getCloudinaryPublicId, verifyCloudinaryImageUpload } from "@/lib/cloudinary";
 
 export const runtime = "nodejs";
-
-type FormDataReader = { get(name: string): FormDataEntryValue | null };
 
 const metadataSchema = z.object({
   title: z.string().trim().min(2).max(120),
@@ -20,12 +18,11 @@ const metadataSchema = z.object({
   category: z.enum(["logo", "coal", "facility", "industrial", "operations", "team", "hero"]),
   placeholder: z.boolean(),
 });
+const replacementSchema = z.object({ assetId: z.string().uuid() });
 const uploadMessages = new Set([
-  "Choose an image file to replace this media item.",
-  "Choose an image file to upload.",
   "Images must be 12 MB or smaller.",
   "Use a JPEG, PNG, WebP, or AVIF image.",
-  "The image file type does not match its contents.",
+  "Cloudinary did not return a valid uploaded image.",
 ]);
 
 function refreshMedia() {
@@ -60,16 +57,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  let orphanedCloudinaryPublicId: string | undefined;
   try {
     await requireAdmin();
     const { id } = await params;
     const db = getDatabase();
     const [existing] = await db.select().from(mediaAssets).where(eq(mediaAssets.id, id)).limit(1);
     if (!existing) return NextResponse.json({ message: "This media item no longer exists." }, { status: 404 });
-    const formData = await request.formData() as unknown as FormDataReader;
-    const file = formData.get("file");
-    if (!(file instanceof File)) throw new Error("Choose an image file to replace this media item.");
-    const upload = await uploadImageToCloudinary(await validateImageUpload(file), existing.category);
+    const { assetId } = replacementSchema.parse(await request.json());
+    orphanedCloudinaryPublicId = getCloudinaryPublicId(assetId, existing.category);
+    const upload = await verifyCloudinaryImageUpload(assetId, existing.category);
 
     const [asset] = await db.update(mediaAssets).set({
       cloudinaryPublicId: upload.cloudinaryPublicId,
@@ -84,12 +81,16 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       updatedAt: new Date(),
     }).where(eq(mediaAssets.id, id)).returning();
 
+    orphanedCloudinaryPublicId = undefined;
     if (existing.cloudinaryPublicId) {
       deleteCloudinaryImage(existing.cloudinaryPublicId).catch((error: unknown) => console.error("Previous Cloudinary asset cleanup failed", error instanceof Error ? error.message : "Unknown error"));
     }
     refreshMedia();
     return NextResponse.json({ asset: serializeMedia(asset) });
   } catch (error) {
+    if (orphanedCloudinaryPublicId) {
+      await deleteCloudinaryImage(orphanedCloudinaryPublicId).catch(() => undefined);
+    }
     console.error("Media replacement failed", error instanceof Error ? error.message : "Unknown error");
     return routeError(error);
   }
