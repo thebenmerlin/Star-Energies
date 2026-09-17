@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Capability, Industry, MediaAsset, Product } from "@/types/content";
 import type { AdminSaveState } from "@/types/admin";
+import { archiveEntityAction, saveCapabilityAction, saveIndustryAction, saveProductAction } from "@/app/admin/actions";
 import { AdminButton, AdminLink, ConfirmDialog, EmptyState, Field, FormSection, MediaPicker, PageHeader, SaveBar, SelectInput, StatusBadge, TextArea, TextInput, Toggle } from "./admin-primitives";
 
 type EntityKind = "products" | "industries" | "capabilities";
@@ -31,7 +32,15 @@ function EntityList({ kind, items }: { kind: EntityKind; items: ListItem[] }) {
     if (sort === "name") return ("title" in first ? first.title : first.name).localeCompare("title" in second ? second.title : second.name);
     return first.displayOrder - second.displayOrder;
   }), [query, rows, sort, status]);
-  const updateLocal = (id: string, key: "active" | "featured", value: boolean) => setRows((current) => current.map((item) => item.id === id ? { ...item, [key]: value } as ListItem : item));
+  const updateLocal = async (id: string, key: "active" | "featured", value: boolean) => {
+    const changed = rows.find((item) => item.id === id);
+    if (!changed) return;
+    const next = { ...changed, [key]: value } as ListItem;
+    setRows((current) => current.map((item) => item.id === id ? next : item));
+    if (kind === "products") await saveProductAction(next as Product, next.status === "published");
+    if (kind === "industries") await saveIndustryAction(next as Industry, next.status === "published");
+    if (kind === "capabilities") await saveCapabilityAction(next as Capability, next.status === "published");
+  };
   const basePath = `/admin/${kind}`;
 
   return <>
@@ -52,13 +61,13 @@ export function ProductsManager({ products }: { products: Product[] }) { return 
 export function IndustriesManager({ industries }: { industries: Industry[] }) { return <EntityList kind="industries" items={industries} />; }
 export function CapabilitiesManager({ capabilities }: { capabilities: Capability[] }) { return <EntityList kind="capabilities" items={capabilities} />; }
 
-function useEditorState() {
+function useEditorState(saveDraft: () => Promise<{ ok: boolean }>, publishContent: () => Promise<{ ok: boolean }>) {
   const [state, setState] = useState<AdminSaveState>("idle");
   return {
     state,
     markDirty: () => setState("dirty"),
-    save: () => { setState("saving"); window.setTimeout(() => setState("saved"), 420); },
-    publish: () => { setState("saving"); window.setTimeout(() => setState("published"), 420); },
+    save: async () => { setState("saving"); const result = await saveDraft(); setState(result.ok ? "saved" : "error"); },
+    publish: async () => { setState("saving"); const result = await publishContent(); setState(result.ok ? "published" : "error"); },
   };
 }
 
@@ -66,8 +75,10 @@ function CommaListField({ label, values, onChange, hint }: { label: string; valu
   return <Field label={label} hint={hint}><TextInput value={values?.join(", ") ?? ""} onChange={(event) => onChange(event.target.value.split(",").map((value) => value.trim()).filter(Boolean))} placeholder="Add values separated by commas" /></Field>;
 }
 
-function SeoFields({ title, description, onChange }: { title?: string; description?: string; onChange: () => void }) {
-  return <div className="admin-fields admin-fields--two"><Field label="SEO title" hint="Recommended: 10–70 characters" count={`${title?.length ?? 0}/70`}><TextInput defaultValue={title} onChange={onChange} /></Field><Field label="Meta description" hint="Recommended: 40–180 characters" count={`${description?.length ?? 0}/180`}><TextArea defaultValue={description} onChange={onChange} /></Field></div>;
+function SeoFields({ seo, onChange }: { seo?: Product["seo"]; onChange: (seo: Product["seo"] | undefined) => void }) {
+  const title = seo?.title ?? "";
+  const description = seo?.description ?? "";
+  return <div className="admin-fields admin-fields--two"><Field label="SEO title" hint="Recommended: 10–70 characters" count={`${title.length}/70`}><TextInput value={title} onChange={(event) => onChange({ title: event.target.value, description: seo?.description ?? "" })} /></Field><Field label="Meta description" hint="Recommended: 40–180 characters" count={`${description.length}/180`}><TextArea value={description} onChange={(event) => onChange({ title: seo?.title ?? "", description: event.target.value })} /></Field></div>;
 }
 
 function EditorActions({ state, onSave, onPublish, route }: { state: AdminSaveState; onSave: () => void; onPublish: () => void; route: string }) {
@@ -76,10 +87,10 @@ function EditorActions({ state, onSave, onPublish, route }: { state: AdminSaveSt
 
 export function ProductEditor({ initial, media, isNew = false }: { initial: Product; media: MediaAsset[]; isNew?: boolean }) {
   const router = useRouter();
-  const editor = useEditorState();
   const [product, setProduct] = useState(initial);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const update = <K extends keyof Product>(key: K, value: Product[K]) => { setProduct((current) => ({ ...current, [key]: value })); editor.markDirty(); };
+  const editor = useEditorState(() => saveProductAction(product), () => saveProductAction(product, true));
   const nameError = !product.name.trim() ? "Name is required." : undefined;
   const slugError = product.slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(product.slug) ? "Use lowercase words separated by hyphens." : undefined;
   return <>
@@ -88,37 +99,37 @@ export function ProductEditor({ initial, media, isNew = false }: { initial: Prod
       <FormSection eyebrow="01 / IDENTITY" title="Category details"><div className="admin-fields admin-fields--two"><Field label="Name" required error={nameError}><TextInput value={product.name} onChange={(event) => update("name", event.target.value)} /></Field><Field label="Slug" required hint="Used in future internal links." error={slugError}><TextInput value={product.slug} onChange={(event) => update("slug", event.target.value)} placeholder="lowercase-hyphenated-slug" /></Field></div><Field label="Short description" required count={`${product.shortDescription.length}/300`}><TextArea value={product.shortDescription} onChange={(event) => update("shortDescription", event.target.value)} /></Field><Field label="Long description" hint="Optional—leave blank if the short description is sufficient." count={`${product.longDescription?.length ?? 0}/700`}><TextArea value={product.longDescription ?? ""} onChange={(event) => update("longDescription", event.target.value || undefined)} /></Field></FormSection>
       <FormSection eyebrow="02 / SOURCING & MATERIAL" title="Requirement context" description="Leave unknown technical information blank. Do not create a fixed online specification catalogue."><Field label="Type / source"><TextInput value={product.sourceType ?? ""} onChange={(event) => update("sourceType", event.target.value || undefined)} /></Field><div className="admin-fields admin-fields--two"><CommaListField label="Grades" values={product.grades} onChange={(value) => update("grades", value.length ? value : undefined)} /><Field label="GCV information"><TextInput value={product.gcvInfo ?? ""} onChange={(event) => update("gcvInfo", event.target.value || undefined)} /></Field><CommaListField label="Sizes" values={product.sizes} onChange={(value) => update("sizes", value.length ? value : undefined)} /><CommaListField label="Applications" values={product.applications} onChange={(value) => update("applications", value.length ? value : undefined)} /></div><Field label="Availability note" hint="Keep availability subject to enquiry and feasibility."><TextArea value={product.availabilityNote ?? ""} onChange={(event) => update("availabilityNote", event.target.value || undefined)} /></Field></FormSection>
       <FormSection eyebrow="03 / MEDIA & VISIBILITY" title="Website presentation"><MediaPicker media={media} selectedId={product.imageId} onSelect={(asset) => update("imageId", asset.id)} /><div className="admin-toggle-group"><Toggle checked={product.featured} onChange={(value) => update("featured", value)} label="Feature on website" detail="Makes this category available to approved featured sections." /><Toggle checked={product.active} onChange={(value) => update("active", value)} label="Active" detail="Inactive entries stay out of the public website." /></div><Field label="Display order"><TextInput type="number" min="0" value={product.displayOrder} onChange={(event) => update("displayOrder", Number(event.target.value))} /></Field></FormSection>
-      <FormSection eyebrow="04 / SEARCH" title="Search metadata"><SeoFields title={product.seo?.title} description={product.seo?.description} onChange={editor.markDirty} /></FormSection>
+      <FormSection eyebrow="04 / SEARCH" title="Search metadata"><SeoFields seo={product.seo} onChange={(seo) => update("seo", seo)} /></FormSection>
     </div><aside className="admin-editor-aside"><p>PUBLIC STATUS</p><StatusBadge status={product.active ? product.status : "inactive"} /><b>{product.featured ? "Featured category" : "Standard category"}</b><span>Prices, live stock counts and unsupported technical values are not published.</span></aside></div>
     <EditorActions state={editor.state} onSave={editor.save} onPublish={editor.publish} route="/coal" />
-    <ConfirmDialog open={deleteOpen} title={`Delete ${product.name}?`} description="This demonstration deletes only the local working state. In production, this action will require a final deletion policy." onCancel={() => setDeleteOpen(false)} onConfirm={() => router.push("/admin/products")} />
+    <ConfirmDialog open={deleteOpen} title={`Remove ${product.name} from the public website?`} description="This safely deactivates the category. It can be restored later instead of permanently deleting business content." confirmLabel="Remove" onCancel={() => setDeleteOpen(false)} onConfirm={async () => { await archiveEntityAction("products", product.id); router.push("/admin/products"); router.refresh(); }} />
   </>;
 }
 
 export function IndustryEditor({ initial, media, isNew = false }: { initial: Industry; media: MediaAsset[]; isNew?: boolean }) {
   const router = useRouter();
-  const editor = useEditorState();
   const [industry, setIndustry] = useState(initial);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const update = <K extends keyof Industry>(key: K, value: Industry[K]) => { setIndustry((current) => ({ ...current, [key]: value })); editor.markDirty(); };
+  const editor = useEditorState(() => saveIndustryAction(industry), () => saveIndustryAction(industry, true));
   return <>
     <PageHeader eyebrow={`INDUSTRIES / ${isNew ? "NEW ENTRY" : "EDIT ENTRY"}`} title={isNew ? "Add industry" : industry.name} description="Use a concise application description; do not imply unsupported fuel specifications." actions={!isNew ? <AdminButton type="button" variant="quiet" onClick={() => setDeleteOpen(true)}>Delete</AdminButton> : undefined} />
-    <div className="admin-editor-layout"><div><FormSection eyebrow="01 / IDENTITY" title="Industry entry"><div className="admin-fields admin-fields--two"><Field label="Name" required error={!industry.name ? "Name is required." : undefined}><TextInput value={industry.name} onChange={(event) => update("name", event.target.value)} /></Field><Field label="Slug" required error={industry.slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(industry.slug) ? "Use lowercase words separated by hyphens." : undefined}><TextInput value={industry.slug} onChange={(event) => update("slug", event.target.value)} /></Field></div><Field label="Short description" required count={`${industry.shortDescription.length}/300`}><TextArea value={industry.shortDescription} onChange={(event) => update("shortDescription", event.target.value)} /></Field><Field label="Long description" hint="Optional"><TextArea value={industry.longDescription ?? ""} onChange={(event) => update("longDescription", event.target.value || undefined)} /></Field></FormSection><FormSection eyebrow="02 / MEDIA & VISIBILITY" title="Website presentation"><MediaPicker media={media} selectedId={industry.imageId} onSelect={(asset) => update("imageId", asset.id)} /><div className="admin-fields admin-fields--two"><Field label="Icon label" hint="Optional internal reference"><TextInput value={industry.icon ?? ""} onChange={(event) => update("icon", event.target.value || undefined)} /></Field><Field label="Display order"><TextInput type="number" min="0" value={industry.displayOrder} onChange={(event) => update("displayOrder", Number(event.target.value))} /></Field></div><div className="admin-toggle-group"><Toggle checked={industry.featured} onChange={(value) => update("featured", value)} label="Feature on website" /><Toggle checked={industry.active} onChange={(value) => update("active", value)} label="Active" /></div></FormSection><FormSection eyebrow="03 / SEARCH" title="Search metadata"><SeoFields title={industry.seo?.title} description={industry.seo?.description} onChange={editor.markDirty} /></FormSection></div><aside className="admin-editor-aside"><p>APPLICATION INDEX</p><StatusBadge status={industry.active ? industry.status : "inactive"} /><b>Requirement-led discussion</b><span>Industry entries guide the public directory; they do not make sector-specific technical guarantees.</span></aside></div>
+    <div className="admin-editor-layout"><div><FormSection eyebrow="01 / IDENTITY" title="Industry entry"><div className="admin-fields admin-fields--two"><Field label="Name" required error={!industry.name ? "Name is required." : undefined}><TextInput value={industry.name} onChange={(event) => update("name", event.target.value)} /></Field><Field label="Slug" required error={industry.slug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(industry.slug) ? "Use lowercase words separated by hyphens." : undefined}><TextInput value={industry.slug} onChange={(event) => update("slug", event.target.value)} /></Field></div><Field label="Short description" required count={`${industry.shortDescription.length}/300`}><TextArea value={industry.shortDescription} onChange={(event) => update("shortDescription", event.target.value)} /></Field><Field label="Long description" hint="Optional"><TextArea value={industry.longDescription ?? ""} onChange={(event) => update("longDescription", event.target.value || undefined)} /></Field></FormSection><FormSection eyebrow="02 / MEDIA & VISIBILITY" title="Website presentation"><MediaPicker media={media} selectedId={industry.imageId} onSelect={(asset) => update("imageId", asset.id)} /><div className="admin-fields admin-fields--two"><Field label="Icon label" hint="Optional internal reference"><TextInput value={industry.icon ?? ""} onChange={(event) => update("icon", event.target.value || undefined)} /></Field><Field label="Display order"><TextInput type="number" min="0" value={industry.displayOrder} onChange={(event) => update("displayOrder", Number(event.target.value))} /></Field></div><div className="admin-toggle-group"><Toggle checked={industry.featured} onChange={(value) => update("featured", value)} label="Feature on website" /><Toggle checked={industry.active} onChange={(value) => update("active", value)} label="Active" /></div></FormSection><FormSection eyebrow="03 / SEARCH" title="Search metadata"><SeoFields seo={industry.seo} onChange={(seo) => update("seo", seo)} /></FormSection></div><aside className="admin-editor-aside"><p>APPLICATION INDEX</p><StatusBadge status={industry.active ? industry.status : "inactive"} /><b>Requirement-led discussion</b><span>Industry entries guide the public directory; they do not make sector-specific technical guarantees.</span></aside></div>
     <EditorActions state={editor.state} onSave={editor.save} onPublish={editor.publish} route="/industries" />
-    <ConfirmDialog open={deleteOpen} title={`Delete ${industry.name}?`} description="This demonstration removes the entry only from the temporary working screen." onCancel={() => setDeleteOpen(false)} onConfirm={() => router.push("/admin/industries")} />
+    <ConfirmDialog open={deleteOpen} title={`Remove ${industry.name} from the public website?`} description="This safely deactivates the industry entry. It remains available for future restoration." confirmLabel="Remove" onCancel={() => setDeleteOpen(false)} onConfirm={async () => { await archiveEntityAction("industries", industry.id); router.push("/admin/industries"); router.refresh(); }} />
   </>;
 }
 
 export function CapabilityEditor({ initial, media }: { initial: Capability; media: MediaAsset[] }) {
   const router = useRouter();
-  const editor = useEditorState();
   const [capability, setCapability] = useState(initial);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const update = <K extends keyof Capability>(key: K, value: Capability[K]) => { setCapability((current) => ({ ...current, [key]: value })); editor.markDirty(); };
+  const editor = useEditorState(() => saveCapabilityAction(capability), () => saveCapabilityAction(capability, true));
   return <>
     <PageHeader eyebrow="CAPABILITIES / EDIT ENTRY" title={capability.title} description="Capabilities are factual operating contexts, not performance promises." actions={<AdminButton type="button" variant="quiet" onClick={() => setDeleteOpen(true)}>Delete</AdminButton>} />
-    <div className="admin-editor-layout"><div><FormSection eyebrow="01 / CAPABILITY" title="Core entry"><div className="admin-fields admin-fields--two"><Field label="Title" required><TextInput value={capability.title} onChange={(event) => update("title", event.target.value)} /></Field><Field label="Slug" required><TextInput value={capability.slug} onChange={(event) => update("slug", event.target.value)} /></Field></div><Field label="Short description" required count={`${capability.shortDescription.length}/300`}><TextArea value={capability.shortDescription} onChange={(event) => update("shortDescription", event.target.value)} /></Field><Field label="Long description" hint="Optional"><TextArea value={capability.longDescription ?? ""} onChange={(event) => update("longDescription", event.target.value || undefined)} /></Field></FormSection><FormSection eyebrow="02 / DISPLAY" title="Visual context"><MediaPicker media={media} selectedId={capability.mediaId} onSelect={(asset) => update("mediaId", asset.id)} /><div className="admin-fields admin-fields--two"><Field label="Icon label" hint="Optional"><TextInput value={capability.icon ?? ""} onChange={(event) => update("icon", event.target.value || undefined)} /></Field><Field label="Display order"><TextInput type="number" min="0" value={capability.displayOrder} onChange={(event) => update("displayOrder", Number(event.target.value))} /></Field></div><div className="admin-toggle-group"><Toggle checked={capability.featured} onChange={(value) => update("featured", value)} label="Feature on website" /><Toggle checked={capability.active} onChange={(value) => update("active", value)} label="Active" /></div></FormSection><FormSection eyebrow="03 / SEARCH" title="Search metadata"><SeoFields title={capability.seo?.title} description={capability.seo?.description} onChange={editor.markDirty} /></FormSection></div><aside className="admin-editor-aside"><p>PUBLIC STATUS</p><StatusBadge status={capability.active ? capability.status : "inactive"} /><b>Controlled capability statement</b><span>Leave commercial and transport claims qualified by transaction, availability and feasibility.</span></aside></div>
+    <div className="admin-editor-layout"><div><FormSection eyebrow="01 / CAPABILITY" title="Core entry"><div className="admin-fields admin-fields--two"><Field label="Title" required><TextInput value={capability.title} onChange={(event) => update("title", event.target.value)} /></Field><Field label="Slug" required><TextInput value={capability.slug} onChange={(event) => update("slug", event.target.value)} /></Field></div><Field label="Short description" required count={`${capability.shortDescription.length}/300`}><TextArea value={capability.shortDescription} onChange={(event) => update("shortDescription", event.target.value)} /></Field><Field label="Long description" hint="Optional"><TextArea value={capability.longDescription ?? ""} onChange={(event) => update("longDescription", event.target.value || undefined)} /></Field></FormSection><FormSection eyebrow="02 / DISPLAY" title="Visual context"><MediaPicker media={media} selectedId={capability.mediaId} onSelect={(asset) => update("mediaId", asset.id)} /><div className="admin-fields admin-fields--two"><Field label="Icon label" hint="Optional"><TextInput value={capability.icon ?? ""} onChange={(event) => update("icon", event.target.value || undefined)} /></Field><Field label="Display order"><TextInput type="number" min="0" value={capability.displayOrder} onChange={(event) => update("displayOrder", Number(event.target.value))} /></Field></div><div className="admin-toggle-group"><Toggle checked={capability.featured} onChange={(value) => update("featured", value)} label="Feature on website" /><Toggle checked={capability.active} onChange={(value) => update("active", value)} label="Active" /></div></FormSection><FormSection eyebrow="03 / SEARCH" title="Search metadata"><SeoFields seo={capability.seo} onChange={(seo) => update("seo", seo)} /></FormSection></div><aside className="admin-editor-aside"><p>PUBLIC STATUS</p><StatusBadge status={capability.active ? capability.status : "inactive"} /><b>Controlled capability statement</b><span>Leave commercial and transport claims qualified by transaction, availability and feasibility.</span></aside></div>
     <EditorActions state={editor.state} onSave={editor.save} onPublish={editor.publish} route="/capabilities" />
-    <ConfirmDialog open={deleteOpen} title={`Delete ${capability.title}?`} description="This demonstration removes the entry only from the temporary working screen." onCancel={() => setDeleteOpen(false)} onConfirm={() => router.push("/admin/capabilities")} />
+    <ConfirmDialog open={deleteOpen} title={`Remove ${capability.title} from the public website?`} description="This safely deactivates the capability entry. It can be restored later." confirmLabel="Remove" onCancel={() => setDeleteOpen(false)} onConfirm={async () => { await archiveEntityAction("capabilities", capability.id); router.push("/admin/capabilities"); router.refresh(); }} />
   </>;
 }

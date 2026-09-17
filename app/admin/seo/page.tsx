@@ -1,15 +1,18 @@
 import { SeoManager, type SeoPage } from "@/components/admin/admin-management";
-import { getAboutPage, getCapabilitiesPage, getCoalPage, getContactPage, getHomePage, getIndustriesPage, getOperationsPage } from "@/lib/content";
+import { getAdminPageContent } from "@/lib/content";
 
-export default function AdminSeoPage() {
+export default async function AdminSeoPage() {
+  const [home, about, coal, industries, capabilities, operations, contact] = await Promise.all([
+    getAdminPageContent("home"), getAdminPageContent("about"), getAdminPageContent("coal"), getAdminPageContent("industries"), getAdminPageContent("capabilities"), getAdminPageContent("operations"), getAdminPageContent("contact"),
+  ]);
   const pages: SeoPage[] = [
-    { id: "home", label: "Home", path: "/", seo: getHomePage().content.seo },
-    { id: "about", label: "About", path: "/about", seo: getAboutPage().seo },
-    { id: "coal", label: "Coal & Products", path: "/coal", seo: getCoalPage().content.seo },
-    { id: "industries", label: "Industries", path: "/industries", seo: getIndustriesPage().content.seo },
-    { id: "capabilities", label: "Capabilities", path: "/capabilities", seo: getCapabilitiesPage().content.seo },
-    { id: "operations", label: "Operations", path: "/operations", seo: getOperationsPage().content.seo },
-    { id: "contact", label: "Contact", path: "/contact", seo: getContactPage().content.seo },
+    { id: "home", label: "Home", path: "/", seo: home.seo },
+    { id: "about", label: "About", path: "/about", seo: about.seo },
+    { id: "coal", label: "Coal & Products", path: "/coal", seo: coal.seo },
+    { id: "industries", label: "Industries", path: "/industries", seo: industries.seo },
+    { id: "capabilities", label: "Capabilities", path: "/capabilities", seo: capabilities.seo },
+    { id: "operations", label: "Operations", path: "/operations", seo: operations.seo },
+    { id: "contact", label: "Contact", path: "/contact", seo: contact.seo },
   ];
   return <SeoManager pages={pages} />;
 }

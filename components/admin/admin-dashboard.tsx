@@ -24,7 +24,7 @@ export function AdminDashboard({ siteSettings, products, industries, capabilitie
 
   return <>
     <PageHeader
-      eyebrow="OVERVIEW / LOCAL WORKSPACE"
+      eyebrow="OVERVIEW / CMS WORKSPACE"
       title="A clear view of the work in hand."
       description="This console uses local development content only. Changes can be demonstrated here without affecting the public website."
       actions={<AdminLink href="/admin/enquiries" variant="dark">Review enquiries</AdminLink>}

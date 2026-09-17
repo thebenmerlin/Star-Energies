@@ -5,11 +5,14 @@ import { ArrowLink, RequirementPrompt, SectionLabel } from "@/components/page-pr
 import { getCoalPage } from "@/lib/content";
 import { createMetadata } from "@/lib/seo";
 
-const coalData = getCoalPage();
-export const metadata = createMetadata(coalData.content.seo);
+export const dynamic = "force-dynamic";
 
-export default function CoalPage() {
-  const { content, products, qualityParameters, requirementDimensions } = coalData;
+export async function generateMetadata() {
+  return createMetadata((await getCoalPage()).content.seo);
+}
+
+export default async function CoalPage() {
+  const { content, products, qualityParameters, requirementDimensions } = await getCoalPage();
 
   return <main>
     <section className="coal-intro" aria-labelledby="coal-title"><div className="shell-grid coal-intro__grid"><div className="coal-intro__label"><SectionLabel>{content.intro.label}</SectionLabel><p><LineBreaks text={content.intro.note} /></p></div><div className="coal-intro__title"><h1 id="coal-title"><EditorialLines lines={content.intro.heading} /></h1><p>{content.intro.body}</p></div><div className="coal-intro__spec"><span>{content.intro.discussionLabel}</span>{content.intro.discussionInputs.map((input) => <b key={input}>{input}</b>)}</div></div></section>

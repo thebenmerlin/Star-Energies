@@ -1,4 +1,4 @@
 import { MediaLibrary } from "@/components/admin/admin-management";
-import { getMediaAssets } from "@/lib/content";
+import { getAdminMediaAssets } from "@/lib/content";
 
-export default function AdminMediaPage() { return <MediaLibrary media={getMediaAssets()} />; }
+export default async function AdminMediaPage() { return <MediaLibrary media={await getAdminMediaAssets()} />; }

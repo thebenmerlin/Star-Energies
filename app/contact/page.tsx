@@ -5,12 +5,14 @@ import { RequirementPrompt, SectionLabel } from "@/components/page-primitives";
 import { getContactPage, getSiteSettings } from "@/lib/content";
 import { createMetadata } from "@/lib/seo";
 
-const contactData = getContactPage();
-export const metadata = createMetadata(contactData.content.seo);
+export const dynamic = "force-dynamic";
 
-export default function ContactPage() {
-  const { content, requirementDimensions } = contactData;
-  const siteSettings = getSiteSettings();
+export async function generateMetadata() {
+  return createMetadata((await getContactPage()).content.seo);
+}
+
+export default async function ContactPage() {
+  const [{ content, requirementDimensions }, siteSettings] = await Promise.all([getContactPage(), getSiteSettings()]);
 
   return <main>
     <section className="contact-opening" aria-labelledby="contact-title"><div className="shell-grid contact-opening__grid"><div><SectionLabel>{content.opening.label}</SectionLabel><h1 id="contact-title"><EditorialLines lines={content.opening.heading} /></h1><p>{content.opening.body}</p></div><address className="contact-opening__channels"><a href={siteSettings.contact.phoneHref}><span>{content.opening.channelLabels[0]}</span>{siteSettings.contact.phoneDisplay}<Arrow diagonal /></a><a href={siteSettings.contact.whatsappHref}><span>{content.opening.channelLabels[1]}</span>{content.opening.whatsappLabel}<Arrow diagonal /></a><a href={siteSettings.contact.emailHref}><span>{content.opening.channelLabels[2]}</span>{siteSettings.contact.email}<Arrow diagonal /></a><p>{siteSettings.address.display}</p></address></div></section>

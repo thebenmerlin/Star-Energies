@@ -1,4 +1,4 @@
 import { IndustriesManager } from "@/components/admin/catalogue-management";
-import { getIndustries } from "@/lib/content";
+import { getAdminIndustries } from "@/lib/content";
 
-export default function AdminIndustriesPage() { return <IndustriesManager industries={getIndustries()} />; }
+export default async function AdminIndustriesPage() { return <IndustriesManager industries={await getAdminIndustries()} />; }

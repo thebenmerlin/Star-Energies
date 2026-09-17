@@ -1,4 +1,4 @@
 import { CapabilitiesManager } from "@/components/admin/catalogue-management";
-import { getCapabilities } from "@/lib/content";
+import { getAdminCapabilities } from "@/lib/content";
 
-export default function AdminCapabilitiesPage() { return <CapabilitiesManager capabilities={getCapabilities()} />; }
+export default async function AdminCapabilitiesPage() { return <CapabilitiesManager capabilities={await getAdminCapabilities()} />; }

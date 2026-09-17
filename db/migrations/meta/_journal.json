@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789657796668,
+      "tag": "0000_perfect_blob",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789658996004,
+      "tag": "0001_concerned_steve_rogers",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789659200999,
+      "tag": "0002_far_cloak",
+      "breakpoints": true
+    }
+  ]
+}

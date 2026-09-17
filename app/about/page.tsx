@@ -4,10 +4,14 @@ import { ArrowLink, SectionLabel } from "@/components/page-primitives";
 import { getAboutPage } from "@/lib/content";
 import { createMetadata } from "@/lib/seo";
 
-const content = getAboutPage();
-export const metadata = createMetadata(content.seo);
+export const dynamic = "force-dynamic";
 
-export default function AboutPage() {
+export async function generateMetadata() {
+  return createMetadata((await getAboutPage()).seo);
+}
+
+export default async function AboutPage() {
+  const content = await getAboutPage();
   return <main>
     <section className="about-opening" aria-labelledby="about-title"><div className="shell-grid about-opening__grid"><SectionLabel inverse>{content.opening.label}</SectionLabel><div className="about-opening__statement"><p>{content.opening.statement}</p><h1 id="about-title"><EditorialLines lines={content.opening.heading} /></h1></div><div className="about-opening__measure"><span>{content.opening.experiencePrefix}</span><strong>{content.opening.experienceValue}</strong><span>{content.opening.experienceLabel}</span></div></div><div className="about-opening__foot"><span>{content.opening.footLabels[0]}</span><span>{content.opening.footLabels[1]}</span></div></section>
 

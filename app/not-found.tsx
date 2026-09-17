@@ -3,8 +3,8 @@ import { Arrow } from "@/components/arrow";
 import { routes } from "@/content/routes";
 import { getSiteSettings } from "@/lib/content";
 
-export default function NotFound() {
-  const siteSettings = getSiteSettings();
+export default async function NotFound() {
+  const siteSettings = await getSiteSettings();
   return (
     <main className="not-found-page">
       <div className="not-found-page__top"><span>PAGE STATE / 404</span><span>{siteSettings.brandName}</span></div>

@@ -6,8 +6,11 @@ import { getHomePage, getSiteSettings } from "@/lib/content";
 import { createMetadata } from "@/lib/seo";
 import type { CoverageRegion } from "@/types/content";
 
-const homeData = getHomePage();
-export const metadata = createMetadata(homeData.content.seo);
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata() {
+  return createMetadata((await getHomePage()).content.seo);
+}
 
 function CapabilityDiagram({ labels }: { labels: readonly [string, string] }) {
   return <div className="capability-diagram" aria-hidden="true"><div className="capability-diagram__orbit" /><div className="capability-diagram__ring capability-diagram__ring--one" /><div className="capability-diagram__ring capability-diagram__ring--two" /><span className="capability-diagram__label capability-diagram__label--one"><LineBreaks text={labels[0]} /></span><span className="capability-diagram__label capability-diagram__label--two"><LineBreaks text={labels[1]} /></span><span className="capability-diagram__dot capability-diagram__dot--one" /><span className="capability-diagram__dot capability-diagram__dot--two" /></div>;
@@ -26,9 +29,8 @@ function RouteDiagram({ regions, note }: { regions: readonly CoverageRegion[]; n
   </svg>;
 }
 
-export default function HomePage() {
-  const { content, products, industries, coverageRegions, qualityParameters, requirementDimensions } = homeData;
-  const siteSettings = getSiteSettings();
+export default async function HomePage() {
+  const [{ content, products, industries, coverageRegions, qualityParameters, requirementDimensions }, siteSettings] = await Promise.all([getHomePage(), getSiteSettings()]);
   const heroMediaStyle = { "--hero-media": `url("${content.hero.media.url}")` } as CSSProperties;
   const sourcingMediaStyle = { "--plate-image": `url("${content.sourcing.media.url}")` } as CSSProperties;
   const facilityMediaStyle = { "--plate-image": `url("${content.facility.media.url}")` } as CSSProperties;

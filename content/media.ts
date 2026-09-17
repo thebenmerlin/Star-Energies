@@ -1,6 +1,6 @@
 import type { MediaAsset } from "@/types/content";
 
-/** Development media only. These records map cleanly to future Supabase Storage assets. */
+/** Development media only. These records seed the S3-compatible media library. */
 export const mediaAssets = [
   {
     id: "star-energies-wordmark",

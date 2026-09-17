@@ -4,11 +4,14 @@ import { SectionLabel } from "@/components/page-primitives";
 import { getCapabilitiesPage } from "@/lib/content";
 import { createMetadata } from "@/lib/seo";
 
-const capabilitiesData = getCapabilitiesPage();
-export const metadata = createMetadata(capabilitiesData.content.seo);
+export const dynamic = "force-dynamic";
 
-export default function CapabilitiesPage() {
-  const { content, capabilities } = capabilitiesData;
+export async function generateMetadata() {
+  return createMetadata((await getCapabilitiesPage()).content.seo);
+}
+
+export default async function CapabilitiesPage() {
+  const { content, capabilities } = await getCapabilitiesPage();
 
   return <main>
     <section className="capabilities-opening" aria-labelledby="capabilities-title"><div className="capabilities-opening__rings" aria-hidden="true"><i /><i /><i /></div><div className="shell-grid capabilities-opening__grid"><SectionLabel inverse>{content.opening.label}</SectionLabel><div><h1 id="capabilities-title"><EditorialLines lines={content.opening.heading} /></h1><p>{content.opening.body}</p></div><div className="capabilities-opening__key"><span>{content.opening.key[0]}</span><b><LineBreaks text={content.opening.key[1]} /></b></div></div></section>

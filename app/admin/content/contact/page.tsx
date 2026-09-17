@@ -1,7 +1,7 @@
 import { ContactContentEditor } from "@/components/admin/content-editors";
 import { getAdminContentData } from "@/lib/admin-content";
 
-export default function AdminContactContentPage() {
-  const { contact } = getAdminContentData();
+export default async function AdminContactContentPage() {
+  const { contact } = await getAdminContentData();
   return <ContactContentEditor content={contact} />;
 }

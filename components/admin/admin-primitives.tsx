@@ -50,7 +50,7 @@ export function Toggle({ checked, onChange, label, detail }: { checked: boolean;
 }
 
 export function SaveBar({ state, onSave, onPublish, onPreview, saveLabel = "Save draft" }: { state: AdminSaveState; onSave: () => void; onPublish?: () => void; onPreview?: () => void; saveLabel?: string }) {
-  const label = state === "dirty" ? "Unsaved changes" : state === "saving" ? "Saving locally…" : state === "saved" ? "Saved locally" : state === "published" ? "Published locally" : "No changes";
+  const label = state === "dirty" ? "Unsaved changes" : state === "saving" ? "Saving…" : state === "saved" ? "Saved" : state === "published" ? "Published" : state === "error" ? "Could not save — try again" : "No changes";
   return <div className="admin-savebar"><span className={`admin-savebar__state admin-savebar__state--${state}`}><i />{label}</span><div>{onPreview && <AdminButton variant="quiet" type="button" onClick={onPreview}>Preview <Icon name="external" size={14} /></AdminButton>}<AdminButton variant="line" type="button" disabled={state === "idle" || state === "saving"} onClick={onSave}>{saveLabel}</AdminButton>{onPublish && <AdminButton variant="dark" type="button" onClick={onPublish}>Publish <Icon name="arrow" size={15} /></AdminButton>}</div></div>;
 }
 

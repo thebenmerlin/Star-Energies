@@ -5,11 +5,14 @@ import { ArrowLink, SectionLabel } from "@/components/page-primitives";
 import { getIndustriesPage } from "@/lib/content";
 import { createMetadata } from "@/lib/seo";
 
-const industriesData = getIndustriesPage();
-export const metadata = createMetadata(industriesData.content.seo);
+export const dynamic = "force-dynamic";
 
-export default function IndustriesPage() {
-  const { content, industries } = industriesData;
+export async function generateMetadata() {
+  return createMetadata((await getIndustriesPage()).content.seo);
+}
+
+export default async function IndustriesPage() {
+  const { content, industries } = await getIndustriesPage();
 
   return <main>
     <section className="industries-opening" aria-labelledby="industries-page-title"><div className="shell-grid industries-opening__grid"><SectionLabel inverse>{content.opening.label}</SectionLabel><div><p>{content.opening.statement}</p><h1 id="industries-page-title"><EditorialLines lines={content.opening.heading} /></h1></div><span className="industries-opening__index">{content.opening.indexLabel}</span></div></section>

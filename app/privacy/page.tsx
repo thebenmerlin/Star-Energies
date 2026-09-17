@@ -4,11 +4,14 @@ import { SectionLabel } from "@/components/page-primitives";
 import { getPrivacyPage, getSiteSettings } from "@/lib/content";
 import { createMetadata } from "@/lib/seo";
 
-const content = getPrivacyPage();
-export const metadata = createMetadata(content.seo);
+export const dynamic = "force-dynamic";
 
-export default function PrivacyPage() {
-  const siteSettings = getSiteSettings();
+export async function generateMetadata() {
+  return createMetadata((await getPrivacyPage()).seo);
+}
+
+export default async function PrivacyPage() {
+  const [content, siteSettings] = await Promise.all([getPrivacyPage(), getSiteSettings()]);
 
   return <main>
     <section className="privacy-opening"><div className="shell-grid privacy-opening__grid"><SectionLabel>{content.opening.label}</SectionLabel><div><h1><EditorialLines lines={content.opening.heading} /></h1><p>{content.opening.body}</p></div><span><LineBreaks text={content.opening.lastUpdated} /></span></div></section>

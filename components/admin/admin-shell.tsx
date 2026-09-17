@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import type { SiteSettings } from "@/types/content";
+import { AdminSignOut } from "./admin-sign-out";
 
 type AdminNavItem = { label: string; href: string; icon: IconName };
 type AdminNavGroup = { label: string; items: AdminNavItem[] };
@@ -53,7 +54,7 @@ function Sidebar({ pathname, brandName, onNavigate }: { pathname: string; brandN
         return <Link className={active ? "is-active" : ""} href={item.href} key={item.href} onClick={onNavigate}><Icon name={item.icon} /><span>{item.label}</span></Link>;
       })}</section>)}
     </nav>
-    <div className="admin-sidebar__bottom"><span className="admin-avatar">SE</span><div><b>Star Energies</b><small>Local workspace</small></div><button type="button" aria-label="Account options"><Icon name="arrow" size={15} /></button></div>
+    <div className="admin-sidebar__bottom"><span className="admin-avatar">SE</span><div><b>Star Energies</b><small>Admin workspace</small></div><AdminSignOut /></div>
   </aside>;
 }
 
@@ -75,10 +76,12 @@ export function AdminShell({ siteSettings, children }: { siteSettings: SiteSetti
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
+  if (pathname === "/admin/login") return <>{children}</>;
+
   return <div className="admin-shell">
     <Sidebar pathname={pathname} brandName={siteSettings.brandName} />
     <div className="admin-mobile-drawer" data-open={menuOpen || undefined}><div className="admin-mobile-drawer__top"><AdminMark name={siteSettings.brandName} /><button type="button" onClick={() => setMenuOpen(false)} aria-label="Close menu"><Icon name="close" /></button></div><Sidebar pathname={pathname} brandName={siteSettings.brandName} onNavigate={() => setMenuOpen(false)} /></div>
-    <div className="admin-workspace"><header className="admin-topbar"><button className="admin-menu-button" type="button" aria-label="Open menu" onClick={() => setMenuOpen(true)}><Icon name="menu" /></button><div><p>ADMIN / {title.toUpperCase()}</p><h1>{title}</h1></div><div className="admin-topbar__actions"><span className="admin-local-state">LOCAL MODE</span><a href="/" target="_blank" rel="noreferrer">View website <Icon name="external" size={14} /></a></div></header><main className="admin-main">{children}</main></div>
+    <div className="admin-workspace"><header className="admin-topbar"><button className="admin-menu-button" type="button" aria-label="Open menu" onClick={() => setMenuOpen(true)}><Icon name="menu" /></button><div><p>ADMIN / {title.toUpperCase()}</p><h1>{title}</h1></div><div className="admin-topbar__actions"><span className="admin-local-state">CMS</span><a href="/" target="_blank" rel="noreferrer">View website <Icon name="external" size={14} /></a></div></header><main className="admin-main">{children}</main></div>
   </div>;
 }
 

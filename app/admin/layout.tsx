@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <AdminShell siteSettings={getSiteSettings()}>{children}</AdminShell>;
+export const dynamic = "force-dynamic";
+
+export default async function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return <AdminShell siteSettings={await getSiteSettings()}>{children}</AdminShell>;
 }

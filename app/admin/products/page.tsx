@@ -1,6 +1,6 @@
 import { ProductsManager } from "@/components/admin/catalogue-management";
-import { getProducts } from "@/lib/content";
+import { getAdminProducts } from "@/lib/content";
 
-export default function AdminProductsPage() {
-  return <ProductsManager products={getProducts()} />;
+export default async function AdminProductsPage() {
+  return <ProductsManager products={await getAdminProducts()} />;
 }

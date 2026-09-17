@@ -7,8 +7,11 @@ import { getOperationsPage, getSiteSettings } from "@/lib/content";
 import { createMetadata } from "@/lib/seo";
 import type { CoverageRegion } from "@/types/content";
 
-const operationsData = getOperationsPage();
-export const metadata = createMetadata(operationsData.content.seo);
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata() {
+  return createMetadata((await getOperationsPage()).content.seo);
+}
 
 function OperationsMap({ regions, origin, note }: { regions: readonly CoverageRegion[]; origin: string; note: string }) {
   const labelFor = (id: string) => regions.find((region) => region.id === id)?.mapLabel ?? "";
@@ -21,9 +24,8 @@ function OperationsMap({ regions, origin, note }: { regions: readonly CoverageRe
   </svg>;
 }
 
-export default function OperationsPage() {
-  const { content, coverageRegions } = operationsData;
-  const siteSettings = getSiteSettings();
+export default async function OperationsPage() {
+  const [{ content, coverageRegions }, siteSettings] = await Promise.all([getOperationsPage(), getSiteSettings()]);
 
   return <main>
     <section className="operations-opening" aria-labelledby="operations-title"><MediaPlate asset={content.opening.media} className="operations-opening__media" caption={content.opening.mediaCaption} /><div className="operations-opening__copy"><SectionLabel inverse>{content.opening.label}</SectionLabel><h1 id="operations-title"><EditorialLines lines={content.opening.heading} /></h1><p>{content.opening.body}</p><span>{content.opening.locationLabel}</span></div></section>

@@ -2,11 +2,11 @@
 
 ## Purpose
 
-Phase 3 keeps the approved public-site design intact while separating business content from presentation. The current source is typed local seed data; public pages access it through `lib/content/index.ts`. A later Supabase repository can replace that implementation without requiring page-composition changes.
+The approved public-site design remains separated from business content. Phase 5 persists the approved local seed data in Neon Postgres through Drizzle; public pages still access it only through `lib/content/index.ts`, so presentation components remain independent of database details.
 
 ## Source of truth
 
-| Domain | Current seed source | Future admin area |
+| Domain | Bootstrap seed source | Admin area |
 | --- | --- | --- |
 | Site settings, contact details, navigation, logo reference | `content/site.ts` | Settings |
 | Public paths | `content/routes.ts` | Design-controlled route configuration |
@@ -36,13 +36,13 @@ getCapabilities()
 getOperationsPage()
 ```
 
-The getters currently return validated seed data synchronously. When Supabase is introduced, replace the lookup internals in this repository layer (and make getters async only where the database requires it). Presentation components should continue to receive the same typed shapes.
+The getters are asynchronous server-side reads from Neon and return published/active content only. `db/seed/index.ts` imports the original approved `content/` files and upserts them into the database. Presentation components continue to receive the same typed shapes.
 
 ## Core models
 
 - `SiteSettings`: canonical brand, contact, address, CTA, navigation, logo reference and default SEO. Phone, WhatsApp and email must only be changed here.
 - `SeoMetadata`: title, description, optional Open Graph fields, canonical path preparation and `noIndex`.
-- `MediaAsset`: stable ID, URL/storage path, accessible text, caption/label, asset category and placeholder status. It maps directly to a future Supabase Storage record.
+- `MediaAsset`: stable ID, object-storage key/URL, accessible text, caption/label, asset category and placeholder status. Metadata is stored in Neon while image binaries remain in S3-compatible storage.
 - `Product`, `Industry`, `Capability`: stable string ID/slug, public copy, active/featured state, `published` preparation and display order. No product carries public pricing or stock counts.
 - `CoverageRegion`: industry-experience geography only. It is not an office-location model.
 - `QualityParameter`: reportable parameter labels only; it must not be used to invent ranges, certifications or promises.
@@ -95,8 +95,15 @@ The future admin should expose only the first two categories. It must not expose
 - Client-approved photography for coal, facility, industrial and operations usage
 - Final legal review of the privacy notice
 
-`content/site.ts` marks contact data as `isPlaceholder: true`; `content/media.ts` marks development imagery as `placeholder: true`.
+The seeded site settings mark contact data as `isPlaceholder: true`; seeded development imagery is marked `placeholder: true`.
 
-## Phase 4 / Phase 5 handoff
+## Persistence and publishing
 
-Phase 4 can build forms around these explicit models. Phase 5 can map them to database rows and Supabase Storage paths. Do not add an admin console, authentication, database queries, storage uploads, RLS or enquiry persistence until those phases are authorised.
+- Fixed page documents have separate draft and published JSONB records in explicit page tables. They are page-specific models, not arbitrary blocks or a page builder.
+- Products, industries, capabilities, coverage, quality, requirements, settings, media, SEO, and media references are relational tables with stable IDs/slugs and display order where appropriate.
+- The admin console saves drafts, then explicitly publishes public-facing page and SEO changes. Catalogue entries use `published` plus `active` states; inactive/draft entities never reach public getters.
+- Media usage is tracked so an image cannot be deleted while a known page or catalogue record references it.
+
+## Phase 6 boundary
+
+The enquiry list and detail interface intentionally remain local demonstration data. Do not add Request a Quote persistence, notifications, anti-spam logic, or enquiry workflows until Phase 6 is authorised.

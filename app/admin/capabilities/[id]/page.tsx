@@ -1,12 +1,11 @@
 import { notFound } from "next/navigation";
 import { CapabilityEditor } from "@/components/admin/catalogue-management";
-import { getCapabilities, getMediaAssets } from "@/lib/content";
-
-export function generateStaticParams() { return getCapabilities().map((capability) => ({ id: capability.id })); }
+import { getAdminCapabilities, getAdminMediaAssets } from "@/lib/content";
 
 export default async function CapabilityEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const capability = getCapabilities().find((item) => item.id === id);
+  const [capabilities, media] = await Promise.all([getAdminCapabilities(), getAdminMediaAssets()]);
+  const capability = capabilities.find((item) => item.id === id);
   if (!capability) notFound();
-  return <CapabilityEditor initial={capability} media={getMediaAssets()} />;
+  return <CapabilityEditor initial={capability} media={media} />;
 }
