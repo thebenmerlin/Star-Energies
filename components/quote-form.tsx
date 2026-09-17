@@ -5,6 +5,13 @@ import { Arrow } from "./arrow";
 
 type Status = "idle" | "error" | "success";
 
+const wideFields = new Set([
+  "coalRequirement",
+  "deliveryCity",
+  "whatsapp",
+  "timeline",
+]);
+
 const fieldGroups = [
   [
     { name: "contactPerson", label: "Contact Person", required: true, type: "text" },
@@ -65,7 +72,7 @@ export function QuoteForm() {
           <legend>{String(groupIndex + 1).padStart(2, "0")}</legend>
           <div className="quote-form__fields">
             {group.map((field) => (
-              <label className={field.name === "coalRequirement" || field.name === "deliveryCity" ? "quote-form__field quote-form__field--wide" : "quote-form__field"} key={field.name}>
+              <label className={wideFields.has(field.name) ? "quote-form__field quote-form__field--wide" : "quote-form__field"} key={field.name}>
                 <span>{field.label}{field.required && <b> *</b>}{field.optional && <em> OPTIONAL</em>}</span>
                 {field.type === "select" ? (
                   <select name={field.name} defaultValue="" required={field.required}><option value="" disabled>Select unit</option><option>Tonnes</option><option>MT</option><option>Other</option></select>
