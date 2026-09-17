@@ -14,7 +14,7 @@ import { operationsPage } from "@/content/operations";
 import { privacyPage } from "@/content/privacy";
 import { products } from "@/content/products";
 import { siteSettings } from "@/content/site";
-import { getDatabase } from "@/db";
+import { getDatabase } from "@/db/runtime";
 import {
   aboutPageContent,
   capabilities as capabilityRecords,

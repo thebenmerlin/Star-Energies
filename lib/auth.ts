@@ -1,15 +1,13 @@
 import "server-only";
 
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 
 import { getDatabase } from "@/db";
-import { administrators, accounts, rateLimits, sessions, users, verifications } from "@/db/schema";
-
-const baseUrl = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL;
+import { administrators } from "@/db/schema";
+import { getAuthBaseConfig } from "@/lib/auth-config";
 
 /**
  * Deferred so `next build` does not need a live database. Route handlers and
@@ -17,34 +15,7 @@ const baseUrl = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL;
  */
 export function getAuth() {
   return betterAuth({
-    database: drizzleAdapter(getDatabase(), {
-      provider: "pg",
-      schema: { users, sessions, accounts, verifications, rateLimits },
-      usePlural: true,
-      camelCase: true,
-    }),
-    baseURL: baseUrl,
-    secret: process.env.BETTER_AUTH_SECRET,
-    emailAndPassword: {
-      enabled: true,
-      // This only opens during the one-off server-side bootstrap command.
-      disableSignUp: process.env.ADMIN_BOOTSTRAP_MODE !== "true",
-      autoSignIn: false,
-    },
-    session: {
-      expiresIn: 60 * 60 * 24 * 14,
-      updateAge: 60 * 60 * 24,
-    },
-    rateLimit: {
-      enabled: true,
-      storage: "database",
-      window: 60,
-      max: 20,
-      customRules: {
-        "/sign-in/email": { window: 60, max: 5 },
-      },
-    },
-    trustedOrigins: baseUrl ? [baseUrl] : undefined,
+    ...getAuthBaseConfig(),
     plugins: [nextCookies()],
   });
 }
