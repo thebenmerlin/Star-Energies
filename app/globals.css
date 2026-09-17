@@ -314,3 +314,22 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 @media (min-width: 621px) {
   .not-found-page { padding-top: 110px; }
 }
+
+/* The form takes a full row before the tablet breakpoint: inputs remain
+   comfortably wide while the contextual guidance stays above the form. */
+@media (min-width: 621px) and (max-width: 980px) {
+  .contact-form-section__aside {
+    grid-column: 1 / -1;
+    position: relative;
+    top: auto;
+  }
+
+  .quote-form {
+    grid-column: 1 / -1;
+    margin-top: 48px;
+  }
+
+  .quote-form__fields {
+    column-gap: 32px;
+  }
+}
