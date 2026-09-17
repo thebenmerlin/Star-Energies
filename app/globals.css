@@ -15,7 +15,7 @@
   --muted: #6c6d66;
   --serif: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
   --sans: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-  --mono: "SFMono-Regular", "Cascadia Code", "Roboto Mono", "Courier New", monospace;
+  --mono: "SF Mono", "Cascadia Mono", "Roboto Mono", "Courier New", monospace;
   --shell: min(100% - 80px, 1440px);
   --section-y: clamp(5.5rem, 10vw, 10rem);
 }
@@ -162,4 +162,98 @@ a:hover .arrow-icon { transform: translate(2px, -2px); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }.fade-up { animation: none; }.button, .image-plate::before, .arrow-icon, .industry-line, .industry-line i, .requirement-step, .site-header, .mobile-menu, .mobile-menu nav a { transition: none; }
+}
+
+/* Technical typography is information, not decoration. Keep it compact but legible. */
+.section-label,
+.eyebrow,
+.section-intro,
+.technical-copy,
+.site-nav a,
+.header-cta,
+.hero__meta,
+.hero__kicker,
+.hero__brief span,
+.hero__bottom,
+.scene-caption,
+.scene-scale,
+.capability-diagram__label,
+.requirement-step__number,
+.requirement__result span,
+.source-row > span,
+.image-plate figcaption,
+.industries__foot,
+.route-diagram__text,
+.route-diagram__key,
+.operations__overlay,
+.operations__note span,
+.quality__table-head,
+.quality-row strong,
+.quality-row em,
+.quality__foot,
+.experience__measure,
+.experience__pretitle,
+.enquire__contact a,
+.enquire__contact a span,
+.enquire__contact p,
+.footer__contact p,
+.footer__base {
+  font-weight: 600;
+}
+
+.section-label,
+.eyebrow,
+.section-intro,
+.technical-copy,
+.hero__meta,
+.hero__kicker,
+.hero__brief span,
+.hero__bottom,
+.scene-caption,
+.scene-scale,
+.capability-diagram__label,
+.requirement-step__number,
+.requirement__result span,
+.source-row > span,
+.image-plate figcaption,
+.industries__foot,
+.route-diagram__text,
+.route-diagram__key,
+.operations__overlay,
+.operations__note span,
+.quality__table-head,
+.quality-row strong,
+.quality-row em,
+.quality__foot,
+.experience__measure,
+.experience__pretitle,
+.enquire__contact a span,
+.enquire__contact p,
+.footer__contact p {
+  font-size: 10px;
+}
+
+.technical-copy { font-size: 12px; }
+.section-label, .eyebrow, .section-intro, .hero__kicker, .hero__brief span { font-size: 11px; }
+.site-nav a, .header-cta, .enquire__contact a, .footer__base { font-size: 11px; }
+
+@media (max-width: 620px) {
+  .section-label,
+  .eyebrow,
+  .section-intro,
+  .hero__kicker,
+  .hero__brief span,
+  .hero__bottom,
+  .scene-caption,
+  .scene-scale,
+  .industries__foot,
+  .quality__foot,
+  .experience__measure,
+  .enquire__contact a span,
+  .enquire__contact p,
+  .footer__contact p { font-size: 9px; }
+
+  .technical-copy,
+  .enquire__contact a,
+  .footer__base { font-size: 10px; }
 }
