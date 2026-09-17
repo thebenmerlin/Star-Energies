@@ -197,9 +197,8 @@ export function IndiaRouteMap({
               id={`state-${state.id}`}
               d={state.path}
               className="india-map__state"
-            >
-              <title>{state.name}</title>
-            </path>
+              data-name={state.name}
+            />
           );
         })}
       </g>
@@ -214,9 +213,8 @@ export function IndiaRouteMap({
               id={`state-active-${state.id}`}
               d={state.path}
               className="india-map__state india-map__state--active"
-            >
-              <title>{state.name} (Operating Coverage)</title>
-            </path>
+              data-name={state.name}
+            />
           );
         })}
       </g>
