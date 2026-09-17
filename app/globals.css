@@ -1,3 +1,5 @@
+@import "@fontsource-variable/ibm-plex-sans/wght.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -14,8 +16,8 @@
   --amber-pale: #d8b071;
   --muted: #6c6d66;
   --serif: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
-  --sans: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-  --mono: "SF Mono", "Cascadia Mono", "Roboto Mono", "Courier New", monospace;
+  --sans: "IBM Plex Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  --mono: "IBM Plex Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   --shell: min(100% - 80px, 1440px);
   --section-y: clamp(5.5rem, 10vw, 10rem);
 }
