@@ -1,4 +1,5 @@
 import { navigation, siteConfig } from "@/lib/site";
+import Link from "next/link";
 import { Mark } from "./mark";
 
 export function Footer() {
@@ -12,7 +13,8 @@ export function Footer() {
         </div>
         <div className="footer__links">
           <span className="eyebrow">Navigate</span>
-          {navigation.slice(1).map((item) => <a key={item.label} href={item.href}>{item.label}</a>)}
+          {navigation.slice(1).map((item) => <Link key={item.label} href={item.href}>{item.label}</Link>)}
+          <Link href="/privacy">Privacy</Link>
         </div>
         <address className="footer__contact">
           <span className="eyebrow">Start a requirement</span>

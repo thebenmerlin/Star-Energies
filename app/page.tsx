@@ -1,6 +1,4 @@
 import { Arrow } from "@/components/arrow";
-import { Footer } from "@/components/footer";
-import { SiteHeader } from "@/components/site-header";
 import {
   industries,
   qualityParameters,
@@ -60,7 +58,6 @@ function RouteDiagram() {
 export default function HomePage() {
   return (
     <>
-      <SiteHeader />
       <main>
         <section className="hero" aria-labelledby="hero-title">
           <div className="hero__grid-lines" aria-hidden="true" />
@@ -226,7 +223,6 @@ export default function HomePage() {
           </div>
         </section>
       </main>
-      <Footer />
     </>
   );
 }

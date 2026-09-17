@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { navigation } from "@/lib/site";
 import { Mark } from "./mark";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+  const hasLightOpening = ["/coal", "/contact", "/privacy"].includes(pathname);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -21,17 +25,17 @@ export function SiteHeader() {
   }, [open]);
 
   return (
-    <header className={`site-header ${scrolled || open ? "site-header--solid" : ""}`}>
+    <header className={`site-header ${hasLightOpening ? "site-header--on-light" : ""} ${scrolled || open ? "site-header--solid" : ""}`}>
       <div className="site-header__inner">
-        <a className="site-header__brand" href="/" onClick={() => setOpen(false)}>
-          <Mark inverse />
-        </a>
+        <Link className="site-header__brand" href="/" onClick={() => setOpen(false)}>
+          <Mark inverse={!hasLightOpening || scrolled || open} />
+        </Link>
         <nav className="site-nav" aria-label="Primary navigation">
           {navigation.map((item) => (
-            <a key={item.label} href={item.href}>{item.label}</a>
+            <Link key={item.label} href={item.href} aria-current={pathname === item.href ? "page" : undefined} className={pathname === item.href ? "is-active" : ""}>{item.label}</Link>
           ))}
         </nav>
-        <a className="header-cta" href="#enquire">Request a Quote <span>↗</span></a>
+        <Link className="header-cta" href="/contact#quote">Request a Quote <span>↗</span></Link>
         <button
           className={`menu-toggle ${open ? "menu-toggle--open" : ""}`}
           type="button"
@@ -45,12 +49,12 @@ export function SiteHeader() {
       <div className={`mobile-menu ${open ? "mobile-menu--open" : ""}`}>
         <nav aria-label="Mobile navigation">
           {navigation.map((item, index) => (
-            <a key={item.label} href={item.href} onClick={() => setOpen(false)} style={{ transitionDelay: `${80 + index * 45}ms` }}>
+            <Link key={item.label} href={item.href} aria-current={pathname === item.href ? "page" : undefined} className={pathname === item.href ? "is-active" : ""} onClick={() => setOpen(false)} style={{ transitionDelay: `${80 + index * 45}ms` }}>
               <span>{String(index + 1).padStart(2, "0")}</span>{item.label}<b>↗</b>
-            </a>
+            </Link>
           ))}
         </nav>
-        <a className="button button--amber" href="#enquire" onClick={() => setOpen(false)}>Request a Quote <span>↗</span></a>
+        <Link className="button button--amber" href="/contact#quote" onClick={() => setOpen(false)}>Request a Quote <span>↗</span></Link>
       </div>
     </header>
   );
