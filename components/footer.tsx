@@ -1,11 +1,12 @@
+"use client";
+
 import { routes } from "@/content/routes";
-import { getNavigation, getSiteSettings } from "@/lib/content";
+import type { SiteSettings } from "@/types/content";
 import Link from "next/link";
 import { Mark } from "./mark";
 
-export function Footer() {
-  const siteSettings = getSiteSettings();
-  const navigation = getNavigation();
+export function Footer({ siteSettings }: { siteSettings: SiteSettings }) {
+  const navigation = siteSettings.navigation;
   const year = new Date().getFullYear();
   return (
     <footer className="footer">
