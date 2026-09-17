@@ -83,19 +83,26 @@ export const verifications = pgTable(
 );
 
 export const rateLimits = pgTable("rate_limit", {
-  key: text("key").primaryKey(),
+  id: text("id").primaryKey(),
+  key: text("key").notNull().unique(),
   count: integer("count").notNull(),
   lastRequest: bigint("last_request", { mode: "number" }).notNull(),
 });
 
 /** A user only receives CMS access when explicitly bootstrapped as an admin. */
-export const administrators = pgTable("administrator", {
-  userId: text("user_id")
-    .primaryKey()
-    .references(() => users.id, { onDelete: "cascade" }),
-  role: text("role").notNull().default("admin"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const administrators = pgTable(
+  "administrator",
+  {
+    userId: text("user_id")
+      .primaryKey()
+      .references(() => users.id, { onDelete: "cascade" }),
+    // A deliberate v1 business rule: this console has one owner account.
+    singleton: boolean("singleton").notNull().default(true),
+    role: text("role").notNull().default("admin"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex("administrator_singleton_unique").on(table.singleton)],
+);
 
 export const contentStatus = pgEnum("content_status", ["draft", "published"]);
 export const enquiryStatus = pgEnum("enquiry_status", ["new", "contacted", "quoted", "closed", "archived"]);

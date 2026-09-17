@@ -8,7 +8,7 @@ import { accounts, rateLimits, sessions, users, verifications } from "@/db/schem
  * Kept free of Next-specific plugins so the one-off admin bootstrap command can
  * create the first account through Better Auth without importing Next modules.
  */
-export function getAuthBaseConfig() {
+export function getAuthBaseConfig({ allowEmailSignUp = false }: { allowEmailSignUp?: boolean } = {}) {
   const baseUrl = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL;
 
   return {
@@ -22,8 +22,9 @@ export function getAuthBaseConfig() {
     secret: process.env.BETTER_AUTH_SECRET,
     emailAndPassword: {
       enabled: true,
-      // This only opens during the one-off server-side bootstrap command.
-      disableSignUp: process.env.ADMIN_BOOTSTRAP_MODE !== "true",
+      // The regular auth API never exposes registration. The first-owner setup
+      // flow opts in explicitly and still enforces the Neon singleton rule.
+      disableSignUp: !allowEmailSignUp,
       autoSignIn: false,
     },
     session: {

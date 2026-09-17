@@ -17,7 +17,7 @@ Star Energies is a Next.js public website and single-administrator CMS. The publ
    npm install
    ```
 
-2. Copy `.env.example` to `.env.local` and enter your own Neon, Better Auth, Cloudinary, and Resend values. `DATABASE_URL`, `BETTER_AUTH_SECRET`, `CLOUDINARY_API_SECRET`, and `RESEND_API_KEY` are server-only secrets: never prefix them with `NEXT_PUBLIC_`.
+2. Copy `.env.example` to `.env` and enter your own Neon, Better Auth, Cloudinary, and Resend values. `DATABASE_URL`, `BETTER_AUTH_SECRET`, `CLOUDINARY_API_SECRET`, and `RESEND_API_KEY` are server-only secrets: never prefix them with `NEXT_PUBLIC_`.
 
 3. Create a Neon database with a pooled/serverless-compatible connection string, then apply the tracked migrations:
 
@@ -31,18 +31,7 @@ Star Energies is a Next.js public website and single-administrator CMS. The publ
    npm run db:seed
    ```
 
-5. Create the first administrator. The command enables signup only inside its one-off CLI process; public signup remains disabled in the application.
-
-   ```bash
-   INITIAL_ADMIN_EMAIL=owner@example.com \
-   INITIAL_ADMIN_PASSWORD='use-a-long-unique-password' \
-   INITIAL_ADMIN_NAME='Star Energies Administrator' \
-   npm run admin:create
-   ```
-
-   Do not retain the password in a shell history, deployment configuration, or source-controlled file after bootstrap.
-
-6. Start the application and visit `/admin/login`:
+5. Start the application and visit `/admin`. On a fresh database you will be redirected to the one-time `/admin/setup` page to create the sole administrator account. The page closes after that account is created.
 
    ```bash
    npm run dev
@@ -55,7 +44,6 @@ npm run db:generate  # create a new migration after editing Drizzle schema
 npm run db:migrate   # apply migrations
 npm run db:seed      # upsert approved site content
 npm run db:studio    # inspect development data with Drizzle Studio
-npm run admin:create # bootstrap an administrator from environment variables
 npm run lint         # TypeScript check
 npm run build        # production build
 ```
@@ -64,9 +52,7 @@ Migrations live in `db/migrations/`; never edit a migration that has already bee
 
 ## Authentication
 
-Better Auth uses database-backed, HTTP-only secure sessions. `/admin/**` is redirected to `/admin/login` when no session cookie is present; all CMS mutations and admin data reads also check the administrator role on the server. There is no public registration route in the running application.
-
-The first user is created only by `admin:create`. Additional administrators can be added later through a controlled server-side process; no client-side `isAdmin` flag grants access.
+Better Auth uses database-backed, HTTP-only secure sessions. `/admin/**` is redirected to `/admin/login` when no session cookie is present; all CMS mutations and admin data reads also check the administrator role on the server. A fresh database exposes `/admin/setup` only until the sole administrator account is created. The regular Better Auth registration route remains disabled, and a database singleton constraint prevents a second administrator.
 
 ## Cloudinary media
 
@@ -109,14 +95,14 @@ After applying migration `0004`, verify:
 
 ## Deployment
 
-The project is deployment-ready for Vercel. See [the Vercel deployment guide](docs/vercel-deployment.md) for the exact project settings, environment-variable scopes, Neon migration/bootstrap sequence, signed Cloudinary upload architecture, and first-production verification steps.
+The project is deployment-ready for Vercel. See [the Vercel deployment guide](docs/vercel-deployment.md) for the exact project settings, environment-variable scopes, Neon migration/setup sequence, signed Cloudinary upload architecture, and first-production verification steps.
 
 ## Production checklist
 
 - [ ] Neon production database created with a least-privilege runtime role
 - [ ] Drizzle migrations applied
 - [ ] Approved content seed verified
-- [ ] Initial administrator created; no bootstrap password retained
+- [ ] Sole administrator created through `/admin/setup`
 - [ ] `BETTER_AUTH_SECRET` set to a unique high-entropy production value
 - [ ] Vercel Production environment variables configured, including the stable `NEXT_SERVER_ACTIONS_ENCRYPTION_KEY`
 - [ ] Cloudinary product environment and restricted API credentials configured

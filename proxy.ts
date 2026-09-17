@@ -9,7 +9,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
-  if (pathname === "/admin/login") return NextResponse.next();
+  if (pathname === "/admin/login" || pathname === "/admin/setup") return NextResponse.next();
 
   if (!getSessionCookie(request)) {
     const loginUrl = new URL("/admin/login", request.url);

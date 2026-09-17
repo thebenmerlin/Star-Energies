@@ -38,14 +38,9 @@ Run these from a trusted workstation or controlled CI job using the production N
 npm ci
 npm run db:migrate
 npm run db:seed
-
-INITIAL_ADMIN_EMAIL=owner@example.com \
-INITIAL_ADMIN_PASSWORD='use-a-unique-long-password' \
-INITIAL_ADMIN_NAME='Star Energies Administrator' \
-npm run admin:create
 ```
 
-The seed has deterministic content upserts and does not create sample enquiries. The administrator bootstrap is a one-time process: do not retain its password in Vercel, shell history, source control, or shared documentation.
+The seed has deterministic content upserts and does not create sample enquiries. On the fresh production database, open `/admin` and create the sole owner account through `/admin/setup`. The setup page closes after the account is created; regular public registration remains disabled.
 
 ## 4. Cloudinary uploads on Vercel
 

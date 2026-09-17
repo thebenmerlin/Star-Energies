@@ -76,7 +76,7 @@ export function AdminShell({ siteSettings, children }: { siteSettings: SiteSetti
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
-  if (pathname === "/admin/login") return <>{children}</>;
+  if (pathname === "/admin/login" || pathname === "/admin/setup") return <>{children}</>;
 
   return <div className="admin-shell">
     <Sidebar pathname={pathname} brandName={siteSettings.brandName} />

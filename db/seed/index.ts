@@ -70,7 +70,7 @@ function collectMediaIds(value: unknown, collected = new Set<string>()): Set<str
 
 /**
  * Deterministic upserts make repeat development seeds safe. It deliberately
- * does not create an administrator; use `npm run admin:create` instead.
+ * does not create an administrator; the sole owner uses `/admin/setup`.
  */
 async function seed() {
   const db = getDatabase();

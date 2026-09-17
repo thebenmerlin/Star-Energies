@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 
-import { AdminLogin } from "@/components/admin/admin-login";
+import { AdminSetup } from "@/components/admin/admin-setup";
 import { isAdminSetupAvailable } from "@/lib/admin-setup";
 import { getAdminSession } from "@/lib/auth";
 
-export default async function AdminLoginPage() {
+export default async function AdminSetupPage() {
   if (await getAdminSession()) redirect("/admin");
-  if (await isAdminSetupAvailable()) redirect("/admin/setup");
-  return <AdminLogin />;
+  if (!(await isAdminSetupAvailable())) redirect("/admin/login");
+  return <AdminSetup />;
 }

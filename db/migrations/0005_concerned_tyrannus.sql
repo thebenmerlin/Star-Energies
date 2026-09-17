@@ -1,0 +1,2 @@
+ALTER TABLE "administrator" ADD COLUMN "singleton" boolean DEFAULT true NOT NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "administrator_singleton_unique" ON "administrator" USING btree ("singleton");
