@@ -52,6 +52,8 @@ export const editorialLineSchema = z.object({
   text: z.string().min(1).max(100),
   emphasis: z.boolean().optional(),
   breakAfter: z.boolean().optional(),
+  bold: z.boolean().optional(),
+  accent: z.boolean().optional(),
 });
 export type EditorialLine = z.infer<typeof editorialLineSchema>;
 
