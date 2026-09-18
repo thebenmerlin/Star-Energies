@@ -63,11 +63,11 @@ export function QuoteForm({ content, directContact }: { content: QuoteFormConten
       <div className="quote-form__honeypot" aria-hidden="true"><label>Website<input name="website" tabIndex={-1} autoComplete="off" /></label></div>
       <div className="quote-form__head"><span>{content.heading}</span><p>{content.helperText.split("*")[0]}<b>*</b>{content.helperText.split("*").slice(1).join("*")}</p></div>
       {content.groups.map((group) => (
-        <fieldset className="quote-form__group" key={group.id}>
+        <fieldset className={`quote-form__group quote-form__group--${group.id}`} key={group.id}>
           <legend>{group.label}</legend>
           <div className="quote-form__fields">
             {group.fields.map((field) => (
-              <label className={`${field.width === "full" ? "quote-form__field quote-form__field--wide" : "quote-form__field"}${fieldErrors[field.name] ? " quote-form__field--error" : ""}`} key={field.name}>
+              <label className={`${field.width === "full" ? "quote-form__field quote-form__field--wide" : "quote-form__field"} quote-form__field--${field.name}${fieldErrors[field.name] ? " quote-form__field--error" : ""}`} key={field.name}>
                 <span>{field.label}{(field.required || field.name === "phone") && <b> *</b>}{field.optional && <em> OPTIONAL</em>}</span>
                 {field.type === "select" ? (
                   <select name={field.name} defaultValue={field.name === "unit" ? "Tonnes" : ""} required={field.required || field.name === "phone"} aria-invalid={Boolean(fieldErrors[field.name])} aria-describedby={fieldErrors[field.name] ? `${field.name}-error` : undefined}><option value="" disabled>{field.placeholder ?? "Select an option"}</option>{field.options?.map((option) => <option key={option}>{option}</option>)}</select>

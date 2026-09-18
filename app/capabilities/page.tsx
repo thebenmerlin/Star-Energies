@@ -1,6 +1,7 @@
 import { Arrow } from "@/components/arrow";
 import { EditorialLines, LineBreaks } from "@/components/content-text";
 import { SectionLabel } from "@/components/page-primitives";
+import { ScrollHoverList } from "@/components/scroll-hover-list";
 import { getCapabilitiesPage } from "@/lib/content";
 import { createMetadata } from "@/lib/seo";
 
@@ -16,7 +17,7 @@ export default async function CapabilitiesPage() {
   return <main>
     <section className="capabilities-opening" aria-labelledby="capabilities-title"><div className="capabilities-opening__rings" aria-hidden="true"><i /><i /><i /></div><div className="shell-grid capabilities-opening__grid"><SectionLabel inverse>{content.opening.label}</SectionLabel><div><h1 id="capabilities-title"><EditorialLines lines={content.opening.heading} /></h1><p>{content.opening.body}</p></div><div className="capabilities-opening__key"><span>{content.opening.key[0]}</span><b><LineBreaks text={content.opening.key[1]} /></b></div></div></section>
 
-    <section className="capability-index section section--white" aria-labelledby="capability-index-title"><div className="shell-grid capability-index__head"><SectionLabel>{content.index.label}</SectionLabel><h2 id="capability-index-title">{content.index.heading}</h2></div><div className="capability-index__list">{capabilities.map((capability, index) => <article key={capability.id}><span>{String(capability.displayOrder).padStart(2, "0")}</span><h3>{capability.title}</h3><p>{capability.shortDescription}</p><b>{index % 2 === 0 ? "↗" : "→"}</b></article>)}</div></section>
+    <section className="capability-index section section--white" aria-labelledby="capability-index-title"><div className="shell-grid capability-index__head"><SectionLabel>{content.index.label}</SectionLabel><h2 id="capability-index-title">{content.index.heading}</h2></div><ScrollHoverList className="capability-index__list">{capabilities.map((capability, index) => <article data-scroll-hover-row key={capability.id}><span>{String(capability.displayOrder).padStart(2, "0")}</span><h3>{capability.title}</h3><p>{capability.shortDescription}</p><b>{index % 2 === 0 ? "↗" : "→"}</b></article>)}</ScrollHoverList></section>
 
     <section className="capabilities-volume section section--stone" aria-labelledby="volume-title"><div className="shell-grid capabilities-volume__grid"><div><SectionLabel>{content.volume.label}</SectionLabel><h2 id="volume-title"><EditorialLines lines={content.volume.heading} /></h2></div><div><p>{content.volume.body}</p><div className="capabilities-volume__axis"><span>{content.volume.axis[0]}</span><i /><span>{content.volume.axis[1]}</span></div></div></div></section>
 

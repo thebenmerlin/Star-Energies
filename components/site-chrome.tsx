@@ -11,5 +11,5 @@ export function SiteChrome({ siteSettings, children }: { siteSettings: SiteSetti
 
   if (pathname.startsWith("/admin")) return <>{children}</>;
 
-  return <><SiteHeader navigation={siteSettings.navigation} brandName={siteSettings.brandName} quoteCTA={siteSettings.primaryQuoteCTA} />{children}<Footer siteSettings={siteSettings} /></>;
+  return <><SiteHeader navigation={siteSettings.navigation} brandName={siteSettings.brandName} quoteCTA={siteSettings.primaryQuoteCTA} contact={siteSettings.contact} />{children}<Footer siteSettings={siteSettings} /></>;
 }
