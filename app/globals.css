@@ -715,3 +715,152 @@ h1 strong, h2 strong { font-weight: 700; }
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Contact enquiry: an intentional two-column prompt rather than four cramped labels. */
+.contact-form-section__aside .requirement-prompt {
+  width: 100%;
+  max-width: none;
+  margin-top: 28px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.contact-form-section__aside .requirement-prompt > span {
+  display: block;
+  margin-bottom: 13px;
+}
+
+.contact-form-section__aside .requirement-prompt > div {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0;
+  border-top: 1px solid var(--line);
+}
+
+.contact-form-section__aside .requirement-prompt b {
+  min-height: 58px;
+  border-top: 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+  letter-spacing: .055em;
+}
+
+.contact-form-section__aside .requirement-prompt b:nth-child(odd) {
+  padding-right: 26px;
+  border-right: 1px solid var(--line);
+}
+
+.contact-form-section__aside .requirement-prompt b:nth-child(even) {
+  padding-left: 26px;
+}
+
+/* The form deliberately switches to a full-width, single-column mobile rhythm. */
+@media (max-width: 620px) {
+  .contact-form-section__grid {
+    row-gap: 0;
+  }
+
+  .contact-form-section__aside {
+    grid-column: 1 / -1;
+    position: static;
+  }
+
+  .contact-form-section__aside h2 {
+    margin: 23px 0 0;
+  }
+
+  .contact-form-section__aside .requirement-prompt {
+    margin-top: 25px;
+  }
+
+  .contact-form-section__aside .requirement-prompt b {
+    min-height: 50px;
+    font-size: 11px;
+  }
+
+  .contact-form-section__aside .requirement-prompt b:nth-child(odd) {
+    padding-right: 16px;
+  }
+
+  .contact-form-section__aside .requirement-prompt b:nth-child(even) {
+    padding-left: 16px;
+  }
+
+  .contact-form-section__aside > p {
+    max-width: 34rem;
+    margin-top: 23px;
+    font-size: 14px;
+  }
+
+  .quote-form {
+    grid-column: 1 / -1;
+    margin-top: 40px;
+  }
+
+  .quote-form__head {
+    display: block;
+    padding: 19px 18px 18px;
+  }
+
+  .quote-form__head p {
+    margin: 9px 0 0;
+  }
+
+  .quote-form__group {
+    padding: 22px 18px 24px;
+  }
+
+  .quote-form__group legend {
+    margin-bottom: 16px;
+  }
+
+  .quote-form__group legend b {
+    width: 26px;
+  }
+
+  .quote-form__fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 17px;
+  }
+
+  .quote-form__field--wide {
+    grid-column: auto;
+  }
+
+  .quote-form input,
+  .quote-form select {
+    height: 54px;
+  }
+
+  .quote-form textarea {
+    min-height: 148px;
+  }
+
+  .quote-form input[type="file"].quote-form__file {
+    min-height: 60px;
+  }
+
+  .quote-form__message {
+    padding: 22px 18px 24px;
+  }
+
+  .quote-form__submit {
+    display: block;
+    padding: 21px 18px 22px;
+  }
+
+  .quote-form__submit .button {
+    width: 100%;
+    min-height: 54px;
+    justify-content: space-between;
+  }
+
+  .quote-form__progress-note,
+  .quote-form__status {
+    max-width: none;
+    margin-top: 13px;
+  }
+
+  .quote-form__privacy {
+    padding: 0 18px max(23px, env(safe-area-inset-bottom));
+  }
+}
