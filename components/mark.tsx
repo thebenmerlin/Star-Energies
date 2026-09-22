@@ -19,56 +19,66 @@ export function Mark({ brandName, inverse = false, compact = false }: MarkProps)
           src="/images/logo/star-core-256.webp"
           alt=""
           className="brand-mark__core"
-          width={38}
-          height={38}
+          width={40}
+          height={40}
           loading="eager"
           decoding="async"
         />
-        <img
-          src="/images/logo/chunk-1-256.webp"
-          alt=""
-          className="brand-mark__chunk brand-mark__chunk--1"
-          width={38}
-          height={38}
-          loading="eager"
-          decoding="async"
-        />
-        <img
-          src="/images/logo/chunk-2-256.webp"
-          alt=""
-          className="brand-mark__chunk brand-mark__chunk--2"
-          width={38}
-          height={38}
-          loading="eager"
-          decoding="async"
-        />
-        <img
-          src="/images/logo/chunk-3-256.webp"
-          alt=""
-          className="brand-mark__chunk brand-mark__chunk--3"
-          width={38}
-          height={38}
-          loading="eager"
-          decoding="async"
-        />
-        <img
-          src="/images/logo/chunk-4-256.webp"
-          alt=""
-          className="brand-mark__chunk brand-mark__chunk--4"
-          width={38}
-          height={38}
-          loading="eager"
-          decoding="async"
-        />
-        <img
-          src="/images/logo/chunk-5-256.webp"
-          alt=""
-          className="brand-mark__chunk brand-mark__chunk--5"
-          width={38}
-          height={38}
-          loading="eager"
-          decoding="async"
-        />
+        <span className="brand-mark__shard brand-mark__shard--1">
+          <img
+            src="/images/logo/chunk-1-256.webp"
+            alt=""
+            className="brand-mark__chunk"
+            width={40}
+            height={40}
+            loading="eager"
+            decoding="async"
+          />
+        </span>
+        <span className="brand-mark__shard brand-mark__shard--2">
+          <img
+            src="/images/logo/chunk-2-256.webp"
+            alt=""
+            className="brand-mark__chunk"
+            width={40}
+            height={40}
+            loading="eager"
+            decoding="async"
+          />
+        </span>
+        <span className="brand-mark__shard brand-mark__shard--3">
+          <img
+            src="/images/logo/chunk-3-256.webp"
+            alt=""
+            className="brand-mark__chunk"
+            width={40}
+            height={40}
+            loading="eager"
+            decoding="async"
+          />
+        </span>
+        <span className="brand-mark__shard brand-mark__shard--4">
+          <img
+            src="/images/logo/chunk-4-256.webp"
+            alt=""
+            className="brand-mark__chunk"
+            width={40}
+            height={40}
+            loading="eager"
+            decoding="async"
+          />
+        </span>
+        <span className="brand-mark__shard brand-mark__shard--5">
+          <img
+            src="/images/logo/chunk-5-256.webp"
+            alt=""
+            className="brand-mark__chunk"
+            width={40}
+            height={40}
+            loading="eager"
+            decoding="async"
+          />
+        </span>
       </span>
       <span className="brand-mark__words">
         <span className="brand-mark__word">{primaryWord}</span>
