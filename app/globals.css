@@ -158,60 +158,113 @@ a:hover .arrow-icon { transform: translate(2px, -2px); }
   }
 }
 
-/* Tap cycle: expands out and smoothly returns to original form */
-@keyframes tapPulseCore {
+/* Tap cycle: expands out and smoothly returns to original form (A/B dual keyframes guarantee instant restart on every tap) */
+@keyframes tapPulseCoreA {
+  0% { transform: scale(1); filter: none; }
+  35% { transform: scale(1.05); filter: drop-shadow(0 0 16px rgba(255, 175, 55, 0.95)); }
+  100% { transform: scale(1); filter: none; }
+}
+@keyframes tapPulseCoreB {
   0% { transform: scale(1); filter: none; }
   35% { transform: scale(1.05); filter: drop-shadow(0 0 16px rgba(255, 175, 55, 0.95)); }
   100% { transform: scale(1); filter: none; }
 }
 
-@keyframes tapShard1 {
+@keyframes tapShard1A {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  35% { transform: translate(-8px, 4px) rotate(-6deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+@keyframes tapShard1B {
   0% { transform: translate(0, 0) rotate(0deg); }
   35% { transform: translate(-8px, 4px) rotate(-6deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-@keyframes tapShard2 {
+@keyframes tapShard2A {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  35% { transform: translate(-13px, 7px) rotate(-9deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+@keyframes tapShard2B {
   0% { transform: translate(0, 0) rotate(0deg); }
   35% { transform: translate(-13px, 7px) rotate(-9deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-@keyframes tapShard3 {
+@keyframes tapShard3A {
+  0% { transform: translate(0, 0) rotate(0deg); filter: none; }
+  35% { transform: translate(-8px, 12px) rotate(6deg); filter: drop-shadow(0 0 10px rgba(255, 175, 50, 0.9)); }
+  100% { transform: translate(0, 0) rotate(0deg); filter: none; }
+}
+@keyframes tapShard3B {
   0% { transform: translate(0, 0) rotate(0deg); filter: none; }
   35% { transform: translate(-8px, 12px) rotate(6deg); filter: drop-shadow(0 0 10px rgba(255, 175, 50, 0.9)); }
   100% { transform: translate(0, 0) rotate(0deg); filter: none; }
 }
 
-@keyframes tapShard4 {
+@keyframes tapShard4A {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  35% { transform: translate(-18px, 14px) rotate(-13deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+@keyframes tapShard4B {
   0% { transform: translate(0, 0) rotate(0deg); }
   35% { transform: translate(-18px, 14px) rotate(-13deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-@keyframes tapShard5 {
+@keyframes tapShard5A {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  35% { transform: translate(6px, 9px) rotate(8deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+@keyframes tapShard5B {
   0% { transform: translate(0, 0) rotate(0deg); }
   35% { transform: translate(6px, 9px) rotate(8deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-.brand-mark--animating .brand-mark__core {
-  animation: tapPulseCore 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+.brand-mark--tap-a .brand-mark__core {
+  animation: tapPulseCoreA 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
-.brand-mark--animating .brand-mark__shard--1 {
-  animation: tapShard1 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+.brand-mark--tap-b .brand-mark__core {
+  animation: tapPulseCoreB 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
-.brand-mark--animating .brand-mark__shard--2 {
-  animation: tapShard2 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+
+.brand-mark--tap-a .brand-mark__shard--1 {
+  animation: tapShard1A 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
-.brand-mark--animating .brand-mark__shard--3 {
-  animation: tapShard3 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+.brand-mark--tap-b .brand-mark__shard--1 {
+  animation: tapShard1B 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
-.brand-mark--animating .brand-mark__shard--4 {
-  animation: tapShard4 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+
+.brand-mark--tap-a .brand-mark__shard--2 {
+  animation: tapShard2A 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
-.brand-mark--animating .brand-mark__shard--5 {
-  animation: tapShard5 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+.brand-mark--tap-b .brand-mark__shard--2 {
+  animation: tapShard2B 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.brand-mark--tap-a .brand-mark__shard--3 {
+  animation: tapShard3A 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+.brand-mark--tap-b .brand-mark__shard--3 {
+  animation: tapShard3B 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.brand-mark--tap-a .brand-mark__shard--4 {
+  animation: tapShard4A 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+.brand-mark--tap-b .brand-mark__shard--4 {
+  animation: tapShard4B 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.brand-mark--tap-a .brand-mark__shard--5 {
+  animation: tapShard5A 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+.brand-mark--tap-b .brand-mark__shard--5 {
+  animation: tapShard5B 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 .site-nav { display: flex; align-items: center; gap: clamp(16px, 2.2vw, 34px); margin-right: clamp(20px, 3.2vw, 48px); }
 .site-nav a { position: relative; padding: 8px 0; color: rgba(250,249,245,.75); font-size: 11px; letter-spacing: .025em; white-space: nowrap; transition: color .2s ease; }

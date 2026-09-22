@@ -15,33 +15,50 @@ type MarkProps = {
 export function Mark({ brandName, inverse = false, compact = false }: MarkProps) {
   const [primaryWord, ...secondaryWords] = brandName.split(" ");
   const secondaryWord = secondaryWords.join(" ");
-  const [animating, setAnimating] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [tapCount, setTapCount] = useState(0);
+  const touchPosRef = useRef<{ x: number; y: number } | null>(null);
+  const isTouchRef = useRef(false);
 
-  const triggerTap = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    setAnimating(true);
-    timeoutRef.current = setTimeout(() => {
-      setAnimating(false);
-    }, 750);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    isTouchRef.current = true;
+    const touch = e.touches[0];
+    touchPosRef.current = { x: touch.clientX, y: touch.clientY };
   };
 
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchPosRef.current) return;
+    const touch = e.changedTouches[0];
+    const dx = Math.abs(touch.clientX - touchPosRef.current.x);
+    const dy = Math.abs(touch.clientY - touchPosRef.current.y);
+    touchPosRef.current = null;
+    if (dx > 8 || dy > 8) return; // Ignore scrolling gestures
+
+    setTapCount((prev) => prev + 1);
+  };
+
+  const handleClick = () => {
+    if (isTouchRef.current) {
+      // Prevent double firing when mobile browser emits synthetic click after touch
+      isTouchRef.current = false;
+      return;
+    }
+    setTapCount((prev) => prev + 1);
+  };
+
+  const tapClass =
+    tapCount === 0
+      ? ""
+      : tapCount % 2 === 1
+      ? "brand-mark--tap-a"
+      : "brand-mark--tap-b";
 
   return (
     <span
-      className={`brand-mark ${inverse ? "brand-mark--inverse" : ""} ${animating ? "brand-mark--animating" : ""}`}
+      className={`brand-mark ${inverse ? "brand-mark--inverse" : ""} ${tapClass}`}
       aria-label={brandName}
-      onTouchStart={triggerTap}
-      onClick={triggerTap}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onClick={handleClick}
     >
       <span className="brand-mark__symbol" aria-hidden="true">
         <img
