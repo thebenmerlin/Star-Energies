@@ -3,6 +3,7 @@ import "server-only";
 import { and, asc, eq } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 
+import { homePage as developmentHomePage } from "@/content/home";
 import { siteSettings as developmentSiteSettings } from "@/content/site";
 import { getDatabase } from "@/db";
 import { getCloudinaryDeliveryUrl } from "@/lib/cloudinary";
@@ -294,13 +295,19 @@ const pageTables = {
   privacy: privacyPageContent,
 } as const;
 
+/** New content blocks retain a safe default until their data migration has run. */
+function withContentCompatibility<T extends PageContent>(page: PageKey, content: T): T {
+  if (page === "home" && !("process" in content)) return { ...content, process: developmentHomePage.process } as T;
+  return content;
+}
+
 async function getPublishedPageDocument<T extends PageContent>(page: PageKey): Promise<T> {
   const table = pageTables[page];
   const [record] = await getDatabase().select().from(table).where(eq(table.id, "primary")).limit(1);
   if (!record || record.status !== "published") throw unavailableContentError(`Published ${page} page`);
 
   const media = new Map((await getCachedMediaAssets()).map((asset) => [asset.id, asset]));
-  const content = hydrateMedia(record.publishedContent as T, media);
+  const content = hydrateMedia(withContentCompatibility(page, record.publishedContent as T), media);
   const [seoRecord] = await getDatabase().select().from(seoMetadataRecords).where(eq(seoMetadataRecords.scope, `page:${page}`)).limit(1);
   if (seoRecord?.status === "published") {
     content.seo = seoMetadataSchema.parse(seoRecord.publishedContent);
@@ -388,9 +395,12 @@ export async function getRequirementDimensionsByIds(ids: readonly string[]): Pro
 }
 
 export async function getHomePage() {
-  const [content, products, industries, coverageRegions, qualityParameters, requirementDimensions] = await Promise.all([
+  const [cachedContent, products, industries, coverageRegions, qualityParameters, requirementDimensions] = await Promise.all([
     getCachedHomePage(), getProducts(), getIndustries(), getCoverageRegions(), getQualityParameters(), getRequirementDimensions(),
   ]);
+  // `unstable_cache` can briefly serve a document created before a content-data
+  // migration; apply the same compatibility layer after the cache boundary.
+  const content = withContentCompatibility("home", cachedContent);
   return {
     content,
     products: selected(products, content.sourcing.productIds, "product"),
@@ -497,7 +507,7 @@ export async function getAdminPageContent(page: PageKey): Promise<PageContent> {
   const [record] = await getDatabase().select().from(table).where(eq(table.id, "primary")).limit(1);
   if (!record) throw unavailableContentError(`${page} page`);
   const media = new Map((await getAdminMediaAssets()).map((asset) => [asset.id, asset]));
-  const content = hydrateMedia(record.draftContent as PageContent, media);
+  const content = hydrateMedia(withContentCompatibility(page, record.draftContent as PageContent), media);
   const [seoRecord] = await getDatabase().select().from(seoMetadataRecords).where(eq(seoMetadataRecords.scope, `page:${page}`)).limit(1);
   if (seoRecord) content.seo = seoMetadataSchema.parse(seoRecord.draftContent);
   return content;

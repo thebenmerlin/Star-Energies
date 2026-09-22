@@ -26,6 +26,21 @@ export const homePage = {
     scrollLabel: "SCROLL TO EXPLORE",
     progressLabel: "STAR ENERGIES / 01",
   },
+  process: {
+    label: "How it works / 01",
+    heading: [
+      { text: "From your requirement", breakAfter: true },
+      { text: "to dispatch.", emphasis: true },
+    ],
+    body: "Five considered stages give every buyer a clear picture of the conversation before material is committed.",
+    steps: [
+      { id: "requirement", title: "Requirement", description: "Material, grade/GCV, size, quantity, frequency and delivery location." },
+      { id: "sourcing", title: "Sourcing", description: "Suitable WCL, e-auction, supplier and trader routes are considered against the brief." },
+      { id: "quality", title: "Quality & specifications", description: "Relevant material parameters and available reports are clarified for the intended application." },
+      { id: "commercials-logistics", title: "Commercials & logistics", description: "The commercial route and third-party delivery coordination are discussed together." },
+      { id: "dispatch", title: "Dispatch", description: "Once terms are agreed, dispatch and destination coordination are aligned to the plan." },
+    ],
+  },
   capabilityIntro: {
     label: "Capability / 01",
     technicalCopy: "Sourcing is considered against material availability, the commercial picture and the route to your destination.",

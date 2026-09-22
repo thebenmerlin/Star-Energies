@@ -79,7 +79,7 @@ function invalidate(tags: readonly string[], paths: readonly string[]) {
 function shallowPageValidation(page: RouteKey, content: unknown) {
   const base = z.object({ seo: seoMetadataSchema }).passthrough().parse(content) as Record<string, unknown>;
   const requiredSections: Record<RouteKey, string[]> = {
-    home: ["hero", "capabilityIntro", "finalCTA"],
+    home: ["hero", "process", "capabilityIntro", "finalCTA"],
     about: ["opening", "distinction", "finalCTA"],
     coal: ["intro", "flow", "categories"],
     industries: ["opening", "directory", "finalCTA"],

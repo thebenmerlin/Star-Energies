@@ -40,6 +40,22 @@ export default async function HomePage() {
   return <main>
     <section className="hero" aria-labelledby="hero-title"><div className="hero__grid-lines" aria-hidden="true" /><div className="hero__inner"><div className="hero__meta fade-up"><span>{content.hero.meta[0]}</span><span>{content.hero.meta[1]}</span></div><div className="hero__content"><p className="hero__kicker fade-up fade-up--delay-1">{content.hero.kicker}</p><h1 id="hero-title" className="hero__title fade-up fade-up--delay-2"><EditorialLines lines={content.hero.heading} /></h1><div className="hero__actions fade-up fade-up--delay-3"><a className="button button--amber" href={content.hero.primaryCTA.href}>{content.hero.primaryCTA.label} <Arrow diagonal /></a><a className="hero__contact" href={content.hero.secondaryCTA.href}><span>{content.hero.secondaryCTA.label}</span><Arrow diagonal /></a></div></div><div className="hero__scene fade-up fade-up--delay-3" style={heroMediaStyle} role="img" aria-label={content.hero.media.altText} data-media-id={content.hero.media.id}><div className="hero__scene-media" /><div className="hero__scene-grid" /><div className="hero__scene-mass hero__scene-mass--one" /><div className="hero__scene-mass hero__scene-mass--two" /><div className="hero__scene-mass hero__scene-mass--three" /><span className="scene-caption"><LineBreaks text={content.hero.sceneCaption} /></span><span className="scene-scale">{content.hero.sceneScale}</span></div><div className="hero__brief fade-up fade-up--delay-4" aria-label="Key coal requirement parameters">{requirementDimensions.map((dimension) => <span key={dimension.id}>{dimension.label.toUpperCase()}</span>)}</div></div><div className="hero__bottom"><span>{content.hero.scrollLabel}</span><i /><span>{content.hero.progressLabel}</span></div></section>
 
+    <section className="process section section--ink" id="how-it-works" aria-labelledby="process-title">
+      <div className="shell-grid process__head">
+        <SectionLabel inverse>{content.process.label}</SectionLabel>
+        <div className="process__copy"><h2 id="process-title"><EditorialLines lines={content.process.heading} /></h2><p>{content.process.body}</p></div>
+        <p className="process__index"><span>THE ROUTE</span><b>01 — 05</b></p>
+      </div>
+      <ol className="process__steps" aria-label="The five stages from enquiry to dispatch">
+        {content.process.steps.map((step, index) => <li className="process__step" key={step.id}>
+          <span className="process__number">{String(index + 1).padStart(2, "0")}</span>
+          <h3>{step.title}</h3>
+          <p>{step.description}</p>
+          {index < content.process.steps.length - 1 && <span className="process__arrow" aria-hidden="true">→</span>}
+        </li>)}
+      </ol>
+    </section>
+
     <section className="capability section section--mineral" id="capabilities" aria-labelledby="capability-title"><div className="shell-grid capability__grid"><div className="capability__side"><SectionLabel>{content.capabilityIntro.label}</SectionLabel><p className="technical-copy">{content.capabilityIntro.technicalCopy}</p></div><div className="capability__main"><p className="section-intro">{content.capabilityIntro.intro}</p><h2 id="capability-title"><EditorialLines lines={content.capabilityIntro.heading} /></h2><p className="capability__body">{content.capabilityIntro.body}</p><ArrowLink href={content.capabilityIntro.cta.href}>{content.capabilityIntro.cta.label}</ArrowLink></div><CapabilityDiagram labels={content.capabilityIntro.diagramLabels} /></div></section>
 
     <section className="requirement section section--graphite" id="requirement" aria-labelledby="requirement-title"><div className="shell-grid"><div className="requirement__intro"><SectionLabel inverse>{content.requirementSourcing.label}</SectionLabel><h2 id="requirement-title">{content.requirementSourcing.heading}</h2><p>{content.requirementSourcing.body}</p></div><ScrollHoverList className="requirement__sequence">{requirementDimensions.map((dimension) => <article className="requirement-step" data-scroll-hover-row key={dimension.id}><span className="requirement-step__number">{String(dimension.displayOrder).padStart(2, "0")}</span><div><h3>{dimension.label}</h3><p>{dimension.detail}</p></div><span className="requirement-step__cross" aria-hidden="true">+</span></article>)}<div className="requirement__result"><span>{content.requirementSourcing.resultLabel}</span><strong><EditorialLines lines={content.requirementSourcing.result} /></strong><Arrow diagonal /></div></ScrollHoverList></div></section>
