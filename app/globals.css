@@ -66,9 +66,9 @@ a:hover .arrow-icon { transform: translate(2px, -2px); }
 .site-header { position: fixed; z-index: 20; top: 0; left: 0; width: 100%; color: var(--paper); transition: background-color .25s ease, box-shadow .25s ease; }
 .site-header--solid { background: rgba(23,24,22,.97); box-shadow: 0 1px 0 rgba(255,255,255,.13); }
 .site-header__inner { width: var(--shell); height: 84px; margin-inline: auto; display: flex; align-items: center; }
-.site-header__brand { display: inline-flex; margin-right: auto; padding: 10px 0; }
+.site-header__brand { display: inline-flex; margin-right: auto; padding: 10px 0; -webkit-tap-highlight-color: transparent; }
 .site-header__brand:focus-visible { outline: 2px solid var(--amber-pale); outline-offset: 5px; }
-.brand-mark { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); font-size: 13px; font-weight: 650; letter-spacing: .095em; line-height: 1; text-decoration: none; cursor: pointer; }
+.brand-mark { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); font-size: 13px; font-weight: 650; letter-spacing: .095em; line-height: 1; text-decoration: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .brand-mark--inverse { color: var(--paper); }
 .brand-mark__symbol { position: relative; width: 42px; height: 42px; flex: none; display: inline-block; overflow: visible; }
 .brand-mark__core { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; transition: transform .48s cubic-bezier(.16, 1, .3, 1), filter .48s ease; will-change: transform, filter; }
@@ -114,46 +114,104 @@ a:hover .arrow-icon { transform: translate(2px, -2px); }
   100% { transform: translate(2px, 2px) rotate(3deg); }
 }
 
-/* Hover & Focus triggers on link, identity block, or mark */
-:is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible, .brand-mark:focus-within) .brand-mark__core {
-  transform: scale(1.05);
-  animation: coreGlowPulse 2.2s ease-in-out infinite alternate;
+/* Persistent hover only on devices with a mouse/trackpad pointer */
+@media (hover: hover) and (pointer: fine) {
+  :is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible) .brand-mark__core {
+    transform: scale(1.05);
+    animation: coreGlowPulse 2.2s ease-in-out infinite alternate;
+  }
+
+  :is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible) .brand-mark__shard--1 {
+    transform: translate(-8px, 4px) rotate(-6deg);
+  }
+  :is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible) .brand-mark__shard--1 .brand-mark__chunk {
+    animation: shardFloat1 2.2s ease-in-out infinite alternate;
+  }
+
+  :is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible) .brand-mark__shard--2 {
+    transform: translate(-13px, 7px) rotate(-9deg);
+  }
+  :is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible) .brand-mark__shard--2 .brand-mark__chunk {
+    animation: shardFloat2 2.6s ease-in-out infinite alternate 0.1s;
+  }
+
+  :is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible) .brand-mark__shard--3 {
+    transform: translate(-8px, 12px) rotate(6deg);
+    filter: drop-shadow(0 0 10px rgba(255, 175, 50, 0.9));
+  }
+  :is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible) .brand-mark__shard--3 .brand-mark__chunk {
+    animation: shardFloat3 2s ease-in-out infinite alternate 0.05s;
+  }
+
+  :is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible) .brand-mark__shard--4 {
+    transform: translate(-18px, 14px) rotate(-13deg);
+  }
+  :is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible) .brand-mark__shard--4 .brand-mark__chunk {
+    animation: shardFloat4 2.8s ease-in-out infinite alternate 0.15s;
+  }
+
+  :is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible) .brand-mark__shard--5 {
+    transform: translate(6px, 9px) rotate(8deg);
+  }
+  :is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible) .brand-mark__shard--5 .brand-mark__chunk {
+    animation: shardFloat5 2.3s ease-in-out infinite alternate 0.2s;
+  }
 }
 
-:is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible, .brand-mark:focus-within) .brand-mark__shard--1 {
-  transform: translate(-8px, 4px) rotate(-6deg);
-}
-:is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible, .brand-mark:focus-within) .brand-mark__shard--1 .brand-mark__chunk {
-  animation: shardFloat1 2.2s ease-in-out infinite alternate;
-}
-
-:is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible, .brand-mark:focus-within) .brand-mark__shard--2 {
-  transform: translate(-13px, 7px) rotate(-9deg);
-}
-:is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible, .brand-mark:focus-within) .brand-mark__shard--2 .brand-mark__chunk {
-  animation: shardFloat2 2.6s ease-in-out infinite alternate 0.1s;
+/* Tap cycle: expands out and smoothly returns to original form */
+@keyframes tapPulseCore {
+  0% { transform: scale(1); filter: none; }
+  35% { transform: scale(1.05); filter: drop-shadow(0 0 16px rgba(255, 175, 55, 0.95)); }
+  100% { transform: scale(1); filter: none; }
 }
 
-:is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible, .brand-mark:focus-within) .brand-mark__shard--3 {
-  transform: translate(-8px, 12px) rotate(6deg);
-  filter: drop-shadow(0 0 10px rgba(255, 175, 50, 0.9));
-}
-:is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible, .brand-mark:focus-within) .brand-mark__shard--3 .brand-mark__chunk {
-  animation: shardFloat3 2s ease-in-out infinite alternate 0.05s;
+@keyframes tapShard1 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  35% { transform: translate(-8px, 4px) rotate(-6deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-:is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible, .brand-mark:focus-within) .brand-mark__shard--4 {
-  transform: translate(-18px, 14px) rotate(-13deg);
-}
-:is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible, .brand-mark:focus-within) .brand-mark__shard--4 .brand-mark__chunk {
-  animation: shardFloat4 2.8s ease-in-out infinite alternate 0.15s;
+@keyframes tapShard2 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  35% { transform: translate(-13px, 7px) rotate(-9deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-:is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible, .brand-mark:focus-within) .brand-mark__shard--5 {
-  transform: translate(6px, 9px) rotate(8deg);
+@keyframes tapShard3 {
+  0% { transform: translate(0, 0) rotate(0deg); filter: none; }
+  35% { transform: translate(-8px, 12px) rotate(6deg); filter: drop-shadow(0 0 10px rgba(255, 175, 50, 0.9)); }
+  100% { transform: translate(0, 0) rotate(0deg); filter: none; }
 }
-:is(.site-header__brand:hover, .mobile-menu__brand:hover, .footer__identity:hover, .brand-mark:hover, .site-header__brand:focus-visible, .brand-mark:focus-within) .brand-mark__shard--5 .brand-mark__chunk {
-  animation: shardFloat5 2.3s ease-in-out infinite alternate 0.2s;
+
+@keyframes tapShard4 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  35% { transform: translate(-18px, 14px) rotate(-13deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+@keyframes tapShard5 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  35% { transform: translate(6px, 9px) rotate(8deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+.brand-mark--animating .brand-mark__core {
+  animation: tapPulseCore 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+.brand-mark--animating .brand-mark__shard--1 {
+  animation: tapShard1 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+.brand-mark--animating .brand-mark__shard--2 {
+  animation: tapShard2 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+.brand-mark--animating .brand-mark__shard--3 {
+  animation: tapShard3 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+.brand-mark--animating .brand-mark__shard--4 {
+  animation: tapShard4 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+.brand-mark--animating .brand-mark__shard--5 {
+  animation: tapShard5 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 .site-nav { display: flex; align-items: center; gap: clamp(16px, 2.2vw, 34px); margin-right: clamp(20px, 3.2vw, 48px); }
 .site-nav a { position: relative; padding: 8px 0; color: rgba(250,249,245,.75); font-size: 11px; letter-spacing: .025em; white-space: nowrap; transition: color .2s ease; }

@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+
 type MarkProps = {
   inverse?: boolean;
   compact?: boolean;
@@ -6,14 +10,39 @@ type MarkProps = {
 
 /**
  * The brand mark layers the 3D obsidian star core and each of its trailing
- * mineral chunks so they can animate independently on hover.
+ * mineral chunks so they can animate independently on hover and tap.
  */
 export function Mark({ brandName, inverse = false, compact = false }: MarkProps) {
   const [primaryWord, ...secondaryWords] = brandName.split(" ");
   const secondaryWord = secondaryWords.join(" ");
+  const [animating, setAnimating] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const triggerTap = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    setAnimating(true);
+    timeoutRef.current = setTimeout(() => {
+      setAnimating(false);
+    }, 750);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
-    <span className={`brand-mark ${inverse ? "brand-mark--inverse" : ""}`} aria-label={brandName}>
+    <span
+      className={`brand-mark ${inverse ? "brand-mark--inverse" : ""} ${animating ? "brand-mark--animating" : ""}`}
+      aria-label={brandName}
+      onTouchStart={triggerTap}
+      onClick={triggerTap}
+    >
       <span className="brand-mark__symbol" aria-hidden="true">
         <img
           src="/images/logo/star-core-256.webp"
