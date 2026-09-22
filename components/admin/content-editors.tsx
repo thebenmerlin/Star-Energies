@@ -43,6 +43,8 @@ export function HomeContentEditor({ content, media }: { content: HomePageContent
     secondaryLabel: content.hero.secondaryCTA.label,
     processHeading: content.process.heading,
     processBody: content.process.body,
+    whyHeading: content.whyStar.heading,
+    whyBody: content.whyStar.body,
     capabilityHeading: content.capabilityIntro.heading,
     capabilityBody: content.capabilityIntro.body,
     sourcingHeading: content.requirementSourcing.heading,
@@ -69,6 +71,7 @@ export function HomeContentEditor({ content, media }: { content: HomePageContent
     ...content,
     hero: { ...content.hero, meta: (() => { const [first, second] = copy.heroMeta.split("·").map((item) => item.trim()); return [first || content.hero.meta[0], second || content.hero.meta[1]] as [string, string]; })(), kicker: copy.heroKicker, heading: copy.heroHeading, primaryCTA: { ...content.hero.primaryCTA, label: copy.primaryLabel }, secondaryCTA: { ...content.hero.secondaryCTA, label: copy.secondaryLabel }, media: media.find((asset) => asset.id === heroMediaId) ?? content.hero.media },
     process: { ...content.process, heading: copy.processHeading, body: copy.processBody },
+    whyStar: { ...content.whyStar, heading: copy.whyHeading, body: copy.whyBody },
     capabilityIntro: { ...content.capabilityIntro, heading: copy.capabilityHeading, body: copy.capabilityBody },
     requirementSourcing: { ...content.requirementSourcing, heading: copy.sourcingHeading, body: copy.sourcingBody, resultLabel: copy.resultLabel },
     sourcing: { ...content.sourcing, heading: copy.coalHeading, body: copy.coalBody },
@@ -99,35 +102,41 @@ export function HomeContentEditor({ content, media }: { content: HomePageContent
           <div className="admin-static-list">{content.process.steps.map((step, index) => <div key={step.id}><b>{String(index + 1).padStart(2, "0")}</b><span><strong>{step.title}</strong><small>{step.description}</small></span></div>)}</div>
         </FormSection>
 
-        <FormSection eyebrow="03 / CAPABILITY INTRODUCTION" title="Supply context" description="Introduces the scale and requirement-led nature of the business without presenting a fixed catalogue.">
+        <FormSection eyebrow="03 / WHY STAR ENERGIES" title="Buyer reasons" description="The six proof points are design-controlled so the section stays factual, balanced and easy to scan.">
+          <EditorialRichEditor label="Heading" value={copy.whyHeading} onChange={(lines) => { update("whyHeading", lines); editor.markDirty(); }} required max={100} theme="dark" />
+          <ContentArea label="Supporting copy" value={copy.whyBody} onChange={(value) => trackedUpdate("whyBody", value)} required max={240} />
+          <div className="admin-static-list">{content.whyStar.reasons.map((reason, index) => <div key={reason.id}><b>{String(index + 1).padStart(2, "0")}</b><span><strong>{reason.title}</strong><small>{reason.description}</small></span></div>)}</div>
+        </FormSection>
+
+        <FormSection eyebrow="04 / CAPABILITY INTRODUCTION" title="Supply context" description="Introduces the scale and requirement-led nature of the business without presenting a fixed catalogue.">
           <EditorialRichEditor label="Heading" value={copy.capabilityHeading} onChange={(lines) => { update("capabilityHeading", lines); editor.markDirty(); }} required max={120} /><ContentArea label="Body copy" value={copy.capabilityBody} onChange={(value) => trackedUpdate("capabilityBody", value)} required max={300} />
         </FormSection>
 
-        <FormSection eyebrow="04 / REQUIREMENT-BASED SOURCING" title="Customer requirement" description="The Grade, Size, Quantity and Destination visual remains design-controlled.">
+        <FormSection eyebrow="05 / REQUIREMENT-BASED SOURCING" title="Customer requirement" description="The Grade, Size, Quantity and Destination visual remains design-controlled.">
           <div className="admin-fields admin-fields--two"><Field label="Section heading" required><TextInput value={copy.sourcingHeading} onChange={(event) => trackedUpdate("sourcingHeading", event.target.value)} /></Field><Field label="Result label"><TextInput value={copy.resultLabel} onChange={(event) => trackedUpdate("resultLabel", event.target.value)} /></Field></div><ContentArea label="Body copy" value={copy.sourcingBody} onChange={(value) => trackedUpdate("sourcingBody", value)} required max={300} />
         </FormSection>
 
-        <FormSection eyebrow="05 / COAL & INDUSTRIES" title="Featured areas" description="Featured product and industry selection is managed in their dedicated areas.">
+        <FormSection eyebrow="06 / COAL & INDUSTRIES" title="Featured areas" description="Featured product and industry selection is managed in their dedicated areas.">
           <div className="admin-fields admin-fields--two"><ContentArea label="Coal section heading" value={copy.coalHeading} onChange={(value) => trackedUpdate("coalHeading", value)} required max={100} /><ContentArea label="Coal section body" value={copy.coalBody} onChange={(value) => trackedUpdate("coalBody", value)} required max={260} /></div><ContentArea label="Industries introduction" value={copy.industryBody} onChange={(value) => trackedUpdate("industryBody", value)} required max={240} />
         </FormSection>
 
-        <FormSection eyebrow="06 / COVERAGE" title="Geographic experience" description="Coverage regions are edited separately; this section contains only the framing copy.">
+        <FormSection eyebrow="07 / COVERAGE" title="Geographic experience" description="Coverage regions are edited separately; this section contains only the framing copy.">
           <div className="admin-fields admin-fields--two"><ContentArea label="Heading" value={copy.coverageHeading} onChange={(value) => trackedUpdate("coverageHeading", value)} required max={120} /><ContentArea label="Body copy" value={copy.coverageBody} onChange={(value) => trackedUpdate("coverageBody", value)} required max={300} /></div>
         </FormSection>
 
-        <FormSection eyebrow="07 / WANI FACILITY" title="Physical operation" description="Do not add unsupported capacity, equipment or dispatch claims.">
+        <FormSection eyebrow="08 / WANI FACILITY" title="Physical operation" description="Do not add unsupported capacity, equipment or dispatch claims.">
           <div className="admin-fields admin-fields--two"><ContentArea label="Heading" value={copy.facilityHeading} onChange={(value) => trackedUpdate("facilityHeading", value)} required max={120} /><ContentArea label="Body copy" value={copy.facilityBody} onChange={(value) => trackedUpdate("facilityBody", value)} required max={300} /></div><MediaPicker media={media} selectedId={facilityMediaId} onSelect={(asset) => { setFacilityMediaId(asset.id); editor.markDirty(); }} />
         </FormSection>
 
-        <FormSection eyebrow="08 / QUALITY" title="Quality information" description="Parameter labels are managed in Quality under operations content. Availability language should remain qualified.">
+        <FormSection eyebrow="09 / QUALITY" title="Quality information" description="Parameter labels are managed in Quality under operations content. Availability language should remain qualified.">
           <div className="admin-fields admin-fields--two"><ContentArea label="Heading" value={copy.qualityHeading} onChange={(value) => trackedUpdate("qualityHeading", value)} required max={120} /><ContentArea label="Body copy" value={copy.qualityBody} onChange={(value) => trackedUpdate("qualityBody", value)} required max={280} /></div>
         </FormSection>
 
-        <FormSection eyebrow="09 / EXPERIENCE" title="New venture, established experience" description="This distinction must remain factual: Star Energies is a new business backed by industry experience.">
+        <FormSection eyebrow="10 / EXPERIENCE" title="New venture, established experience" description="This distinction must remain factual: Star Energies is a new business backed by industry experience.">
           <div className="admin-fields admin-fields--two"><EditorialRichEditor label="Heading" value={copy.experienceHeading} onChange={(lines) => { update("experienceHeading", lines); editor.markDirty(); }} required max={120} theme="dark" /><ContentArea label="Body copy" value={copy.experienceBody} onChange={(value) => trackedUpdate("experienceBody", value)} required max={300} /></div>
         </FormSection>
 
-        <FormSection eyebrow="10 / FINAL CALL TO ACTION" title="Enquiry moment" description="Keeps direct contact available as an alternative to the quote form.">
+        <FormSection eyebrow="11 / FINAL CALL TO ACTION" title="Enquiry moment" description="Keeps direct contact available as an alternative to the quote form.">
           <div className="admin-fields admin-fields--two"><EditorialRichEditor label="Heading" value={copy.finalHeading} onChange={(lines) => { update("finalHeading", lines); editor.markDirty(); }} required max={100} /><ContentArea label="Body copy" value={copy.finalBody} onChange={(value) => trackedUpdate("finalBody", value)} required max={260} /></div>
         </FormSection>
       </div>

@@ -297,8 +297,12 @@ const pageTables = {
 
 /** New content blocks retain a safe default until their data migration has run. */
 function withContentCompatibility<T extends PageContent>(page: PageKey, content: T): T {
-  if (page === "home" && !("process" in content)) return { ...content, process: developmentHomePage.process } as T;
-  return content;
+  if (page !== "home") return content;
+  const additions = {
+    ...(!("process" in content) ? { process: developmentHomePage.process } : {}),
+    ...(!("whyStar" in content) ? { whyStar: developmentHomePage.whyStar } : {}),
+  };
+  return Object.keys(additions).length ? { ...content, ...additions } as T : content;
 }
 
 async function getPublishedPageDocument<T extends PageContent>(page: PageKey): Promise<T> {

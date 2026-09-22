@@ -56,6 +56,21 @@ export default async function HomePage() {
       </ol>
     </section>
 
+    <section className="why section section--mineral" id="why-star-energies" aria-labelledby="why-title">
+      <div className="shell-grid why__head">
+        <SectionLabel>{content.whyStar.label}</SectionLabel>
+        <div className="why__copy"><h2 id="why-title"><EditorialLines lines={content.whyStar.heading} /></h2><p>{content.whyStar.body}</p></div>
+        <p className="why__count"><span>BUYER REASONS</span><b>{String(content.whyStar.reasons.length).padStart(2, "0")}</b></p>
+      </div>
+      <div className="why__reasons">
+        {content.whyStar.reasons.map((reason, index) => <article className="why__reason" key={reason.id}>
+          <div className="why__reason-top"><span>{String(index + 1).padStart(2, "0")}</span><p>{reason.signal}</p></div>
+          <h3>{reason.title}</h3>
+          <p>{reason.description}</p>
+        </article>)}
+      </div>
+    </section>
+
     <section className="capability section section--mineral" id="capabilities" aria-labelledby="capability-title"><div className="shell-grid capability__grid"><div className="capability__side"><SectionLabel>{content.capabilityIntro.label}</SectionLabel><p className="technical-copy">{content.capabilityIntro.technicalCopy}</p></div><div className="capability__main"><p className="section-intro">{content.capabilityIntro.intro}</p><h2 id="capability-title"><EditorialLines lines={content.capabilityIntro.heading} /></h2><p className="capability__body">{content.capabilityIntro.body}</p><ArrowLink href={content.capabilityIntro.cta.href}>{content.capabilityIntro.cta.label}</ArrowLink></div><CapabilityDiagram labels={content.capabilityIntro.diagramLabels} /></div></section>
 
     <section className="requirement section section--graphite" id="requirement" aria-labelledby="requirement-title"><div className="shell-grid"><div className="requirement__intro"><SectionLabel inverse>{content.requirementSourcing.label}</SectionLabel><h2 id="requirement-title">{content.requirementSourcing.heading}</h2><p>{content.requirementSourcing.body}</p></div><ScrollHoverList className="requirement__sequence">{requirementDimensions.map((dimension) => <article className="requirement-step" data-scroll-hover-row key={dimension.id}><span className="requirement-step__number">{String(dimension.displayOrder).padStart(2, "0")}</span><div><h3>{dimension.label}</h3><p>{dimension.detail}</p></div><span className="requirement-step__cross" aria-hidden="true">+</span></article>)}<div className="requirement__result"><span>{content.requirementSourcing.resultLabel}</span><strong><EditorialLines lines={content.requirementSourcing.result} /></strong><Arrow diagonal /></div></ScrollHoverList></div></section>

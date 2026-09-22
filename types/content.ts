@@ -254,6 +254,12 @@ export type HomePageContent = {
     body: string;
     steps: readonly { id: string; title: string; description: string }[];
   };
+  whyStar: {
+    label: string;
+    heading: readonly EditorialLine[];
+    body: string;
+    reasons: readonly { id: string; signal: string; title: string; description: string }[];
+  };
   capabilityIntro: { label: string; technicalCopy: string; intro: string; heading: readonly EditorialLine[]; body: string; cta: CallToAction; diagramLabels: readonly [string, string] };
   requirementSourcing: { label: string; heading: string; body: string; resultLabel: string; result: readonly EditorialLine[] };
   sourcing: { label: string; heading: string; body: string; productIds: readonly string[]; media: MediaAsset; mediaCaption: readonly [string, string] };

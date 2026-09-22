@@ -132,6 +132,41 @@ a:hover .arrow-icon { transform: translate(2px, -2px); }
   .process__arrow { display: none; }
 }
 
+/* Why Star Energies */
+.why { background: #e8e4d8; }
+.why__head { align-items: start; }
+.why__head > .section-label { grid-column: 1 / span 3; margin-top: 12px; }
+.why__copy { grid-column: 4 / span 6; }
+.why__copy h2 { max-width: 690px; margin: 0; font-size: clamp(3rem, 4.9vw, 5.55rem); }
+.why__copy h2 em { color: #8c5e2e; }
+.why__copy > p { max-width: 475px; margin: 24px 0 0; color: #50514a; font-size: 15px; line-height: 1.6; }
+.why__count { grid-column: 11 / -1; margin: 13px 0 0; color: var(--muted); font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-align: right; }
+.why__count span, .why__count b { display: block; }
+.why__count b { margin-top: 8px; color: #8c5e2e; font-size: 22px; font-weight: 500; letter-spacing: -.06em; }
+.why__reasons { width: var(--shell); margin: clamp(3.8rem, 7.3vw, 7rem) auto 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.why__reason { min-width: 0; min-height: 300px; display: flex; flex-direction: column; padding: 23px 29px 28px; border-right: 1px solid var(--line); transition: background-color .22s ease, box-shadow .22s ease; }
+.why__reason:nth-child(3n) { border-right: 0; }
+.why__reason:nth-child(n + 4) { border-top: 1px solid var(--line); }
+.why__reason-top { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+.why__reason-top > span { color: #8c5e2e; font-family: var(--mono); font-size: 11px; letter-spacing: .07em; }
+.why__reason-top p { max-width: 142px; margin: 1px 0 0; color: #77766e; font-family: var(--mono); font-size: 9px; letter-spacing: .07em; line-height: 1.25; text-align: right; }
+.why__reason h3 { max-width: 260px; margin: auto 0 13px; font-size: clamp(1.65rem, 2.15vw, 2.2rem); font-weight: 500; letter-spacing: -.06em; line-height: .98; }
+.why__reason > p { max-width: 294px; margin: 0; color: #5e5f58; font-size: 13px; line-height: 1.52; }
+@media (hover: hover) {
+  .why__reason:hover { background: #f8f6ee; box-shadow: inset 0 3px 0 var(--amber); }
+}
+
+@media (min-width: 621px) and (max-width: 980px) {
+  .why__head > .section-label { grid-column: 1 / span 3; }
+  .why__copy { grid-column: 4 / span 7; }
+  .why__count { grid-column: 11 / -1; }
+  .why__reasons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .why__reason:nth-child(3n) { border-right: 1px solid var(--line); }
+  .why__reason:nth-child(2n) { border-right: 0; }
+  .why__reason:nth-child(n + 3) { border-top: 1px solid var(--line); }
+  .why__reason:nth-child(3) { border-top: 1px solid var(--line); }
+}
+
 /* Capability */
 .capability { min-height: 710px; }.capability__grid { position: relative; }.capability__side { grid-column: 1 / span 3; }.capability__side .technical-copy { max-width: 190px; margin-top: 210px; color: var(--muted); }.capability__main { grid-column: 4 / span 7; }.capability__main h2 { margin: 0; max-width: 770px; }.capability__main h2 span { display: block; }.capability__main h2 em { display: block; color: var(--amber); }.capability__body { max-width: 350px; margin: 42px 0 30px; color: #40413d; font-size: 16px; line-height: 1.55; }.capability-diagram { position: absolute; top: -18px; right: -140px; width: 470px; height: 470px; border: 1px solid rgba(23,24,22,.14); border-radius: 50%; }.capability-diagram__orbit, .capability-diagram__ring { position: absolute; border: 1px solid rgba(23,24,22,.2); border-radius: 50%; }.capability-diagram__orbit { inset: 63px; border-color: var(--amber); }.capability-diagram__ring--one { inset: 138px; }.capability-diagram__ring--two { inset: 208px; }.capability-diagram__label { position: absolute; color: var(--muted); font-family: var(--mono); font-size: 9px; letter-spacing: .07em; line-height: 1.45; }.capability-diagram__label--one { top: 82px; left: 55px; }.capability-diagram__label--two { right: 71px; bottom: 102px; text-align: right; }.capability-diagram__dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }.capability-diagram__dot--one { top: 62px; right: 118px; }.capability-diagram__dot--two { bottom: 100px; left: 42px; background: var(--ink); }
 
@@ -1013,5 +1048,87 @@ h1 strong, h2 strong { font-weight: 700; }
 
   .process__arrow {
     display: none;
+  }
+}
+
+/* On phones, buyer reasons are an easy-to-pause-on proof stack rather than mini cards. */
+@media (max-width: 620px) {
+  .why {
+    padding-block: 76px 70px;
+  }
+
+  .why__head {
+    display: block;
+    width: var(--shell);
+  }
+
+  .why__head > .section-label {
+    margin-top: 0;
+  }
+
+  .why__copy {
+    margin-top: 27px;
+  }
+
+  .why__copy h2 {
+    max-width: 350px;
+    font-size: clamp(3rem, 13vw, 4.2rem);
+  }
+
+  .why__copy > p {
+    max-width: 335px;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+
+  .why__count {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 27px;
+    padding-top: 13px;
+    border-top: 1px solid var(--line);
+    text-align: left;
+  }
+
+  .why__count b {
+    margin-top: 0;
+    font-size: 19px;
+  }
+
+  .why__reasons {
+    display: block;
+    width: var(--shell);
+    margin-top: 36px;
+    border-bottom: 0;
+  }
+
+  .why__reason,
+  .why__reason:nth-child(3n) {
+    min-height: 0;
+    padding: 21px 0 27px;
+    border-right: 0;
+    border-top: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .why__reason + .why__reason {
+    border-top: 1px solid var(--line);
+  }
+
+  .why__reason-top p {
+    max-width: 175px;
+  }
+
+  .why__reason h3 {
+    max-width: 300px;
+    margin: 31px 0 10px;
+    font-size: clamp(1.8rem, 8.2vw, 2.25rem);
+  }
+
+  .why__reason > p {
+    max-width: 335px;
+    font-size: 13px;
   }
 }
