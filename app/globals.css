@@ -70,40 +70,97 @@ a:hover .arrow-icon { transform: translate(2px, -2px); }
 .site-header__brand:focus-visible { outline: 2px solid var(--amber-pale); outline-offset: 5px; }
 .brand-mark { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); font-size: 13px; font-weight: 650; letter-spacing: .095em; line-height: 1; text-decoration: none; }
 .brand-mark--inverse { color: var(--paper); }
-.brand-mark__symbol { position: relative; width: 38px; height: 38px; flex: none; display: inline-block; }
+.brand-mark__symbol { position: relative; width: 38px; height: 38px; flex: none; display: inline-block; overflow: visible; }
 .brand-mark__core,
 .brand-mark__chunk { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-.brand-mark__core { transition: transform .48s cubic-bezier(.22, 1, .36, 1), filter .48s ease; will-change: transform, filter; }
-.brand-mark__chunk { transition: transform .48s cubic-bezier(.22, 1, .36, 1), filter .48s ease; will-change: transform; }
+.brand-mark__core { transition: transform .6s cubic-bezier(.22, 1, .36, 1), filter .6s ease; will-change: transform, filter; }
+.brand-mark__chunk { transition: transform .6s cubic-bezier(.22, 1, .36, 1), filter .6s ease; will-change: transform, filter; }
 .brand-mark__words { display: inline-flex; align-items: baseline; gap: 5px; }
 .brand-mark__word { text-transform: uppercase; }
 .brand-mark__word--light { font-weight: 400; letter-spacing: .115em; }
+
+@keyframes coreGlowPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px rgba(255, 150, 40, 0.55));
+    transform: scale(1.01);
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(255, 175, 55, 0.9));
+    transform: scale(1.035);
+  }
+}
+
+@keyframes chunkDrift1 {
+  0%, 100% {
+    transform: translate(-1.8px, 0.9px) rotate(-1.5deg);
+  }
+  50% {
+    transform: translate(-3.2px, 1.8px) rotate(-3.5deg);
+  }
+}
+
+@keyframes chunkDrift2 {
+  0%, 100% {
+    transform: translate(-2.6px, 1.4px) rotate(-2deg);
+  }
+  50% {
+    transform: translate(-4.8px, 2.6px) rotate(-5deg);
+  }
+}
+
+@keyframes chunkDrift3 {
+  0%, 100% {
+    transform: translate(-2.2px, 2.4px) rotate(1.5deg);
+    filter: drop-shadow(0 0 4px rgba(255, 160, 40, 0.75));
+  }
+  50% {
+    transform: translate(-4px, 4.4px) rotate(3.5deg);
+    filter: drop-shadow(0 0 8px rgba(255, 185, 60, 0.95));
+  }
+}
+
+@keyframes chunkDrift4 {
+  0%, 100% {
+    transform: translate(-3.4px, 2.8px) rotate(-3deg);
+  }
+  50% {
+    transform: translate(-5.8px, 4.8px) rotate(-6deg);
+  }
+}
+
+@keyframes chunkDrift5 {
+  0%, 100% {
+    transform: translate(1px, 1.8px) rotate(1.5deg);
+  }
+  50% {
+    transform: translate(2.2px, 3.4px) rotate(3.5deg);
+  }
+}
+
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .brand-mark:hover .brand-mark__core,
   .site-header__brand:focus-visible .brand-mark__core {
-    filter: drop-shadow(0 0 8px rgba(255, 145, 35, 0.65));
-    transform: scale(1.02);
+    animation: coreGlowPulse 2.4s ease-in-out infinite;
   }
   .brand-mark:hover .brand-mark__chunk--1,
   .site-header__brand:focus-visible .brand-mark__chunk--1 {
-    transform: translate(-1.8px, 1px) rotate(-1.5deg);
+    animation: chunkDrift1 2.2s ease-in-out infinite;
   }
   .brand-mark:hover .brand-mark__chunk--2,
   .site-header__brand:focus-visible .brand-mark__chunk--2 {
-    transform: translate(-2.8px, 1.4px) rotate(-2deg);
+    animation: chunkDrift2 2.6s ease-in-out infinite 0.12s;
   }
   .brand-mark:hover .brand-mark__chunk--3,
   .site-header__brand:focus-visible .brand-mark__chunk--3 {
-    transform: translate(-2.2px, 2.6px) rotate(1.5deg);
-    filter: drop-shadow(0 0 4px rgba(255, 160, 40, 0.85));
+    animation: chunkDrift3 2.1s ease-in-out infinite 0.08s;
   }
   .brand-mark:hover .brand-mark__chunk--4,
   .site-header__brand:focus-visible .brand-mark__chunk--4 {
-    transform: translate(-3.4px, 2.8px) rotate(-3deg);
+    animation: chunkDrift4 2.8s ease-in-out infinite 0.18s;
   }
   .brand-mark:hover .brand-mark__chunk--5,
   .site-header__brand:focus-visible .brand-mark__chunk--5 {
-    transform: translate(1px, 2px) rotate(2deg);
+    animation: chunkDrift5 2.4s ease-in-out infinite 0.22s;
   }
 }
 .site-nav { display: flex; align-items: center; gap: clamp(16px, 2.2vw, 34px); margin-right: clamp(20px, 3.2vw, 48px); }
