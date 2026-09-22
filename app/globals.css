@@ -397,6 +397,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   letter-spacing: .075em;
 }
 
+.quote-form__group legend b { display: inline-block; width: 28px; color: var(--amber); font-size: 10px; letter-spacing: .08em; }
+
 .quote-form__fields {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
@@ -430,6 +432,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   font-size: 16px;
   line-height: 1.35;
 }
+
+.quote-form input[type="file"].quote-form__file { height: auto; min-height: 52px; padding: 12px; font-size: 13px; line-height: 1.25; }
+.quote-form__field > i { display: block; margin-top: 7px; color: var(--muted); font-size: 10px; font-style: normal; line-height: 1.4; }
+.quote-form__progress-note { max-width: 260px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
 
 .quote-form input,
 .quote-form select {

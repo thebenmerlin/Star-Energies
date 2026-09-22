@@ -24,6 +24,12 @@ const PAGE_SIZE = 25;
 
 type EnquiryRecord = typeof enquiries.$inferSelect;
 type EnquiryNoteRecord = typeof enquiryNotes.$inferSelect;
+export type LabReportAttachment = {
+  publicId: string;
+  name: string;
+  mimeType: string;
+  sizeBytes: number;
+};
 
 export class EnquiryRateLimitError extends Error {
   constructor() {
@@ -97,7 +103,9 @@ function toAdminEnquiry(record: EnquiryRecord, notes: EnquiryNote[] = []): Admin
     status: record.status,
     source: record.source,
     contactPerson: record.contactName,
-    companyName: record.companyName,
+    companyType: record.companyType,
+    role: record.contactRole,
+    companyName: record.companyName ?? undefined,
     phone: record.phone,
     email: record.email ?? undefined,
     whatsapp: record.whatsapp ?? undefined,
@@ -106,11 +114,15 @@ function toAdminEnquiry(record: EnquiryRecord, notes: EnquiryNote[] = []): Admin
     size: record.size ?? undefined,
     quantity: record.quantity,
     unit: record.unit,
+    requirementFrequency: record.requirementFrequency,
     deliveryCity: record.deliveryCity,
     state: record.deliveryState,
     pincode: record.pincode ?? undefined,
     timeline: record.desiredTimeline ?? undefined,
     message: record.message ?? undefined,
+    labReportName: record.labReportName ?? undefined,
+    labReportMimeType: record.labReportMimeType ?? undefined,
+    labReportSizeBytes: record.labReportSizeBytes ?? undefined,
     notes,
   };
 }
@@ -177,6 +189,8 @@ export async function createPublicEnquiry(input: PublicEnquiryRequest, metadata:
       clientSubmissionId: input.clientSubmissionId,
       dedupeHash,
       contactName: input.contactPerson,
+      companyType: input.companyType,
+      contactRole: input.role,
       companyName: input.companyName,
       phone: input.phone,
       email: input.email,
@@ -186,6 +200,7 @@ export async function createPublicEnquiry(input: PublicEnquiryRequest, metadata:
       size: input.size,
       quantity: String(input.quantity),
       unit: input.unit,
+      requirementFrequency: input.requirementFrequency,
       deliveryCity: input.deliveryCity,
       deliveryState: input.state,
       pincode: input.pincode,
@@ -205,6 +220,31 @@ export async function createPublicEnquiry(input: PublicEnquiryRequest, metadata:
 
   if (!record) throw new Error("The enquiry could not be saved.");
   return { accepted: true, duplicate: false, enquiry: toAdminEnquiry(record) } as const;
+}
+
+/** Attach a private lab report only after the core enquiry is safely persisted. */
+export async function attachLabReport(enquiryId: string, attachment: LabReportAttachment) {
+  const [updated] = await getDatabase().update(enquiries).set({
+    labReportPublicId: attachment.publicId,
+    labReportName: attachment.name,
+    labReportMimeType: attachment.mimeType,
+    labReportSizeBytes: attachment.sizeBytes,
+    updatedAt: new Date(),
+  }).where(eq(enquiries.id, enquiryId)).returning();
+  if (!updated) throw new Error("The enquiry could not be found.");
+  return toAdminEnquiry(updated);
+}
+
+/** The binary stays in private Cloudinary storage; this exposes metadata only. */
+export async function getAdminEnquiryLabReport(id: string) {
+  await requireAdmin();
+  const [record] = await getDatabase().select({
+    publicId: enquiries.labReportPublicId,
+    name: enquiries.labReportName,
+    mimeType: enquiries.labReportMimeType,
+  }).from(enquiries).where(eq(enquiries.id, id)).limit(1);
+  if (!record?.publicId || !record.name || !record.mimeType) return undefined;
+  return { publicId: record.publicId, name: record.name, mimeType: record.mimeType };
 }
 
 export async function getAdminEnquiries(options: { query?: string; status?: string; page?: number; pageSize?: number; sort?: "newest" | "oldest" } = {}): Promise<EnquiryListResult> {

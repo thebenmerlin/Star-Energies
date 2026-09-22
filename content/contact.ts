@@ -22,8 +22,8 @@ export const contactPage = {
     requirementPromptLabel: "IF YOU KNOW IT, TELL US",
     requirementDimensionIds: ["grade", "size", "quantity", "destination"],
     quoteForm: {
-      heading: "QUOTE BRIEF / 01",
-      helperText: "Fields marked * are required. If you do not know every specification, contact us anyway.",
+      heading: "ENQUIRY / 01",
+      helperText: "Fields marked * are required. We only ask for business details that are relevant to your role.",
       groups: [
         {
           id: "contact-details",
@@ -58,9 +58,9 @@ export const contactPage = {
           ],
         },
       ],
-      messageLabel: "Additional Requirement / Message",
+      messageLabel: "Additional specifications",
       messageOptionalLabel: "OPTIONAL",
-      submitLabel: "Prepare Enquiry",
+      submitLabel: "Send Enquiry",
       validationMessages: {
         incomplete: "Please complete the required fields so we can understand the enquiry.",
         contactMethod: "Please add a phone number or email so we can respond.",

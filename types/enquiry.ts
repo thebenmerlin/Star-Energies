@@ -1,10 +1,28 @@
 import { z } from "zod";
+import {
+  enquiryCompanyTypes,
+  enquiryRequirementFrequencies,
+  enquiryRoles,
+  requiresCompanyName,
+  type EnquiryCompanyType,
+  type EnquiryRequirementFrequency,
+  type EnquiryRole,
+} from "@/lib/enquiry-rules";
 
 export const enquiryStatusSchema = z.enum(["new", "contacted", "quoted", "closed", "archived"]);
 export type EnquiryStatus = z.infer<typeof enquiryStatusSchema>;
 
 export const enquirySourceSchema = z.enum(["website_quote_form"]);
 export type EnquirySource = z.infer<typeof enquirySourceSchema>;
+
+export const enquiryCompanyTypeSchema = z.enum(enquiryCompanyTypes);
+export type { EnquiryCompanyType };
+
+export const enquiryRoleSchema = z.enum(enquiryRoles);
+export type { EnquiryRole };
+
+export const enquiryRequirementFrequencySchema = z.enum(enquiryRequirementFrequencies);
+export type { EnquiryRequirementFrequency };
 
 const optionalText = (maximum: number) => z.preprocess(
   (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
@@ -29,7 +47,9 @@ const quantitySchema = z.preprocess(
  */
 export const enquirySubmissionSchema = z.object({
   contactPerson: z.string().trim().min(2, "Enter the contact person's name.").max(120),
-  companyName: z.string().trim().min(2, "Enter the company name.").max(160),
+  companyType: enquiryCompanyTypeSchema,
+  role: enquiryRoleSchema,
+  companyName: optionalText(160),
   phone: phoneSchema,
   email: z.preprocess(
     (value) => typeof value === "string" && value.trim() === "" ? undefined : value,
@@ -41,11 +61,20 @@ export const enquirySubmissionSchema = z.object({
   size: optionalText(120),
   quantity: quantitySchema,
   unit: z.enum(["Tonnes", "MT", "Other"], { message: "Select a unit." }),
+  requirementFrequency: enquiryRequirementFrequencySchema,
   deliveryCity: z.string().trim().min(2, "Enter the delivery city.").max(120),
   state: z.string().trim().min(2, "Enter the delivery state.").max(120),
   pincode: optionalText(24),
   timeline: optionalText(160),
   message: optionalText(2_000),
+}).superRefine((input, context) => {
+  if (requiresCompanyName(input.companyType, input.role) && !input.companyName) {
+    context.addIssue({ code: "custom", path: ["companyName"], message: "Enter the company or firm name for this role." });
+  }
+
+  if (input.companyType === "Individual" && input.companyName) {
+    context.addIssue({ code: "custom", path: ["companyName"], message: "A company name is not needed for an individual enquiry." });
+  }
 });
 export type EnquirySubmission = z.infer<typeof enquirySubmissionSchema>;
 
@@ -82,7 +111,9 @@ export type AdminEnquiry = {
   status: EnquiryStatus;
   source: EnquirySource;
   contactPerson: string;
-  companyName: string;
+  companyType: string;
+  role: string;
+  companyName?: string;
   phone: string;
   email?: string;
   whatsapp?: string;
@@ -91,11 +122,15 @@ export type AdminEnquiry = {
   size?: string;
   quantity: string;
   unit: string;
+  requirementFrequency: string;
   deliveryCity: string;
   state: string;
   pincode?: string;
   timeline?: string;
   message?: string;
+  labReportName?: string;
+  labReportMimeType?: string;
+  labReportSizeBytes?: number;
   notes: EnquiryNote[];
 };
 

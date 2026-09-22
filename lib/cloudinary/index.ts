@@ -22,6 +22,13 @@ const folderByCategory: Record<MediaAsset["category"], string> = {
 };
 
 export const maxImageBytes = 12 * 1024 * 1024;
+export const maxLabReportBytes = 3 * 1024 * 1024;
+
+const labReportFormats = new Map([
+  ["application/pdf", "pdf"],
+  ["image/jpeg", "jpg"],
+  ["image/png", "png"],
+]);
 
 export function getCloudinaryPublicId(assetId: string, category: MediaAsset["category"]) {
   return `star-energies/${folderByCategory[category]}/${assetId}`;
@@ -55,6 +62,75 @@ function getCloudinary() {
   });
 
   return cloudinary;
+}
+
+export function isCloudinaryConfigured() {
+  return Boolean(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
+}
+
+function safeFilename(filename: string) {
+  const cleaned = filename.replace(/[\\/:*?"<>|\u0000-\u001f]+/g, "-").replace(/\s+/g, " ").trim();
+  return (cleaned || "lab-report").slice(0, 180);
+}
+
+export type EnquiryLabReportUpload = {
+  publicId: string;
+  name: string;
+  mimeType: string;
+  sizeBytes: number;
+};
+
+export function validateEnquiryLabReport(file: File) {
+  if (!labReportFormats.has(file.type.toLowerCase())) throw new Error("Use a PDF, JPEG, or PNG lab report.");
+  if (file.size <= 0 || file.size > maxLabReportBytes) throw new Error("Lab reports must be 3 MB or smaller.");
+}
+
+/**
+ * Lab reports are uploaded as authenticated raw assets. They are never used
+ * as public media and can only be fetched through the authenticated admin
+ * download route.
+ */
+export async function uploadEnquiryLabReport(file: File, enquiryId: string): Promise<EnquiryLabReportUpload> {
+  const mimeType = file.type.toLowerCase();
+  const extension = labReportFormats.get(mimeType);
+  validateEnquiryLabReport(file);
+  if (!extension) throw new Error("Use a PDF, JPEG, or PNG lab report.");
+
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const upload = await new Promise<{ public_id?: string; bytes?: number }>((resolve, reject) => {
+    const stream = getCloudinary().uploader.upload_stream({
+      resource_type: "raw",
+      type: "authenticated",
+      folder: "star-energies/enquiries/lab-reports",
+      public_id: `${enquiryId}.${extension}`,
+      overwrite: false,
+      use_filename: false,
+      filename_override: safeFilename(file.name),
+      tags: "star-energies,enquiry,lab-report",
+    }, (error, result) => error || !result ? reject(error ?? new Error("Cloudinary did not return a valid lab report.")) : resolve(result));
+    stream.end(bytes);
+  });
+
+  if (!upload.public_id || !Number.isFinite(upload.bytes) || !upload.bytes || upload.bytes > maxLabReportBytes) {
+    throw new Error("Cloudinary did not return a valid lab report.");
+  }
+
+  return { publicId: upload.public_id, name: safeFilename(file.name), mimeType, sizeBytes: upload.bytes };
+}
+
+export function getEnquiryLabReportDownloadUrl(publicId: string) {
+  return getCloudinary().url(publicId, {
+    secure: true,
+    resource_type: "raw",
+    type: "authenticated",
+    sign_url: true,
+    attachment: true,
+  });
+}
+
+export async function deleteEnquiryLabReport(publicId: string) {
+  const result = await getCloudinary().uploader.destroy(publicId, { resource_type: "raw", type: "authenticated", invalidate: true });
+  if (result.result !== "ok" && result.result !== "not found") throw new Error("Cloudinary could not remove the lab report.");
 }
 
 /**

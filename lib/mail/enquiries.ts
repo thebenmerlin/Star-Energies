@@ -19,7 +19,9 @@ function enquiryDetails(enquiry: AdminEnquiry, appUrl?: string) {
   const link = appUrl?.replace(/\/$/, "") ? `\nOpen in admin: ${appUrl.replace(/\/$/, "")}/admin/enquiries/${enquiry.id}` : "";
   return `
 Contact person: ${enquiry.contactPerson}
-Company: ${enquiry.companyName}
+Company type: ${enquiry.companyType}
+Role: ${enquiry.role}
+Company / firm: ${value(enquiry.companyName)}
 Phone: ${enquiry.phone}
 Email: ${value(enquiry.email)}
 WhatsApp: ${value(enquiry.whatsapp)}
@@ -28,10 +30,12 @@ Coal requirement: ${enquiry.coalRequirement}
 Grade / GCV: ${value(enquiry.gradeGcv)}
 Size: ${value(enquiry.size)}
 Quantity: ${enquiry.quantity} ${enquiry.unit}
+Requirement frequency: ${enquiry.requirementFrequency}
 
 Delivery location: ${enquiry.deliveryCity}, ${enquiry.state}${enquiry.pincode ? ` (${enquiry.pincode})` : ""}
 Desired timeline: ${value(enquiry.timeline)}
 Additional requirement: ${value(enquiry.message)}
+Lab report: ${enquiry.labReportName ? `${enquiry.labReportName} (available privately in admin)` : "Not attached"}
 
 Submitted: ${new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" }).format(new Date(enquiry.submittedAt))} IST
 Source: Website quote form${link}`.trim();
@@ -58,7 +62,7 @@ export async function sendEnquiryNotifications({ enquiry, recipientEmail, appUrl
     from,
     to: [recipientEmail],
     replyTo: enquiry.email || undefined,
-    subject: `New Quote Enquiry — ${subjectValue(enquiry.companyName)}`,
+    subject: `New Quote Enquiry — ${subjectValue(enquiry.companyName ?? enquiry.contactPerson)}`,
     text: enquiryDetails(enquiry, appUrl),
   }, { idempotencyKey: `star-energies-enquiry-admin/${enquiry.id}` });
 
